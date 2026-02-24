@@ -48,6 +48,9 @@ local TabSkill = Window:MakeTab({Name = "Skill⚔️", Icon = "rbxassetid://4483
 local TabCheck = Window:MakeTab({Name = "Check Level 🔍", Icon = "rbxassetid://4483362458", Premium = false})
 local TabAura = Window:MakeTab({Name = "Kill Aura🌀", Icon = "rbxassetid://4483362458", Premium = false})
 
+TabMain:AddSection({
+	Name = "Bật Tự Động Sử Dụng Giáp"
+})
 getgenv().AutoArmor = false
 TabMain:AddToggle({
     Name = "Auto Armor 🛡️",
@@ -77,6 +80,10 @@ task.spawn(function()
     end
 end)
 
+TabMain:AddSection({
+	Name = "Bấm Vào Để Anti Afk"
+})
+
 TabMain:AddToggle({
     Name = "Anti-AFK",
     Default = false,
@@ -91,6 +98,10 @@ game:GetService("Players").LocalPlayer.Idled:Connect(function()
         game:GetService("VirtualUser"):ClickButton2(Vector2.new())
     end
 end)
+
+TabMain:AddSection({
+	Name = "Bật Lên Để Auto Equip"
+})
 
 getgenv().AutoRotateSlot = false
 TabMain:AddToggle({
@@ -117,6 +128,10 @@ TabMain:AddToggle({
             end)
         end
     end
+})
+
+TabMain:AddSection({
+	Name = "Bật Để Auto Cất Vật Phẩm Vào Store"
 })
 
 getgenv().AutoStoreOwnerBlade = false
@@ -150,6 +165,10 @@ TabMain:AddToggle({
             end)
         end
     end
+})
+
+TabMain:AddSection({
+	Name = "Xem Player Ở Đâu"
 })
 
 TabMain:AddToggle({
@@ -250,6 +269,10 @@ TabMain:AddToggle({
     end,
 })
 
+TabCheck:AddSection({
+	Name = "Chọn Player Cần Xem"
+})
+
 local SelectedPlayer = nil
 local PlayerList = {}
 
@@ -268,6 +291,10 @@ local PlayerDropdown = TabCheck:AddDropdown({
     end    
 })
 
+TabCheck:AddSection({
+	Name = "Làm Mới Danh Sách Player"
+})
+
 TabCheck:AddButton({
     Name = "Làm mới danh sách",
     Callback = function()
@@ -282,6 +309,10 @@ TabCheck:AddButton({
             Time = 3
         })
     end    
+})
+
+TabCheck:AddSection({
+	Name = "Check Level Người Khác"
 })
 
 TabCheck:AddButton({
@@ -307,6 +338,10 @@ TabCheck:AddButton({
     end    
 })
 
+TabCheck:AddSection({
+	Name = "Check Beli Người Khác"
+})
+
 TabCheck:AddButton({
     Name = "Check Beli",
     Callback = function()
@@ -328,6 +363,10 @@ TabCheck:AddButton({
             OrionLib:MakeNotification({Name = "Lỗi", Content = "Vui lòng chọn người chơi!", Time = 3})
         end
     end    
+})
+
+TabCheck:AddSection({
+	Name = "Xem Người Khác Đang Cầm Gì"
 })
 
 TabCheck:AddButton({
@@ -354,37 +393,6 @@ TabCheck:AddButton({
     end    
 })
 
-TabCheck:AddButton({
-    Name = "Check Kho đồ",
-    Callback = function()
-        if SelectedPlayer then
-            local inv = {}
-            for _, item in pairs(SelectedPlayer.Backpack:GetChildren()) do
-                if item:IsA("Tool") then
-                    table.insert(inv, "• " .. item.Name)
-                end
-            end
-            local char = SelectedPlayer.Character
-            if char then
-                local tool = char:FindFirstChildOfClass("Tool")
-                if tool then
-                    table.insert(inv, "• " .. tool.Name .. " (Đang cầm)")
-                end
-            end
-            local result = #inv > 0 and table.concat(inv, "\n") or "Túi đồ trống"
-            
-            InfoBox:Set("Kết quả cho: " .. SelectedPlayer.Name, "🎒 Danh sách kho đồ:\n" .. result)
-            
-            OrionLib:MakeNotification({
-                Name = "Thông tin Kho đồ",
-                Content = "Đã cập nhật danh sách túi đồ của " .. SelectedPlayer.Name,
-                Time = 5
-            })
-        else
-            OrionLib:MakeNotification({Name = "Lỗi", Content = "Vui lòng chọn người chơi!", Time = 3})
-        end
-    end    
-})
 
 local RangeVisual = Instance.new("Part")
 RangeVisual.Name = "KillAuraVisual"
@@ -403,6 +411,10 @@ getgenv().RangeColor = Color3.fromRGB(0, 255, 100)
 getgenv().VisualTransparency = 0.5
 getgenv().PulseEffect = false
 
+TabAura:AddSection({
+	Name = "Chỉnh Phạm Vi Kill Aura"
+})
+
 TabAura:AddSlider({
 	Name = "Phạm vi Kill Aura",
 	Min = 0,
@@ -416,8 +428,12 @@ TabAura:AddSlider({
 	end    
 })
 
+TabAura:AddSection({
+	Name = "Chỉnh Độ Rõ Của Phạm Vi Kill Aura"
+})
+
 TabAura:AddSlider({
-	Name = "Độ đậm lợt (Transparency)",
+	Name = "Độ Sáng Vòng Kill Aura",
 	Min = 0,
 	Max = 100,
 	Default = 50,
@@ -429,63 +445,45 @@ TabAura:AddSlider({
 	end    
 })
 
+TabAura:AddSection({
+	Name = "Bật Phạm Vi Kill Aura"
+})
+
 TabAura:AddToggle({
-	Name = "👁️ Hiển thị phạm vi",
+	Name = "👁️ Phạm Vi Kill Aura",
 	Default = false,
 	Callback = function(Value)
 		getgenv().ShowRange = Value
 	end
 })
 
+TabAura:AddSection({
+	Name = "Đổi Màu Cho Phạm Vi"
+})
+
 TabAura:AddColorpicker({
-	Name = "Màu vòng tròn",
+	Name = "Đổi Màu",
 	Default = Color3.fromRGB(0, 255, 100),
 	Callback = function(Value)
 		getgenv().RangeColor = Value
 	end	  
 })
 
+TabAura:AddSection({
+	Name = "Thích Cầu Vồng Thì Đổi Cầu Vòng"
+})
+
 TabAura:AddToggle({
-	Name = "🌈 Chế độ Cầu vồng",
+	Name = "🌈 Đổi Màu Cầu vồng",
 	Default = false,
 	Callback = function(Value)
 		getgenv().RainbowRange = Value
 	end
 })
 
-TabAura:AddToggle({
-	Name = "💓 Hiệu ứng Nhịp đập (Pulse)",
-	Default = false,
-	Callback = function(Value)
-		getgenv().PulseEffect = Value
-	end
+TabAura:AddSection({
+	Name = "Bật Kill Aura"
 })
-
-task.spawn(function()
-    while true do
-        task.wait()
-        local lp = game.Players.LocalPlayer
-        if getgenv().ShowRange and lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
-            local sizeOffset = 0
-            if getgenv().PulseEffect then
-                sizeOffset = math.sin(tick() * 5) * 2
-            end
-            
-            local currentSize = (getgenv().KillAuraRange * 2) + sizeOffset
-            RangeVisual.CFrame = lp.Character.HumanoidRootPart.CFrame * CFrame.Angles(0, 0, math.rad(90))
-            RangeVisual.Size = Vector3.new(0.1, currentSize, currentSize)
-            
-            if getgenv().RainbowRange then
-                RangeVisual.Color = Color3.fromHSV(tick() % 5 / 5, 1, 1)
-            else
-                RangeVisual.Color = getgenv().RangeColor
-            end
-            RangeVisual.Transparency = getgenv().VisualTransparency
-        else
-            RangeVisual.Transparency = 1
-        end
-    end
-end)
 
 TabAura:AddToggle({
 	Name = "🗡️ Kill Aura",
