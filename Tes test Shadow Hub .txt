@@ -269,9 +269,6 @@ TabMain:AddToggle({
     end,
 })
 
-TabCheck:AddSection({
-	Name = "Chọn Player Cần Xem"
-})
 
 local SelectedPlayer = nil
 local PlayerList = {}
@@ -281,6 +278,10 @@ for _, v in pairs(game.Players:GetPlayers()) do
 end
 
 local InfoBox = TabCheck:AddParagraph("Thông tin người chơi", "Vui lòng chọn người chơi và bấm nút Check")
+
+TabCheck:AddSection({
+	Name = "Chọn Player Cần Xem"
+})
 
 local PlayerDropdown = TabCheck:AddDropdown({
     Name = "Chọn người chơi",
@@ -412,10 +413,10 @@ getgenv().VisualTransparency = 0.5
 getgenv().PulseEffect = false
 
 TabAura:AddSection({
-	Name = "Chỉnh Phạm Vi Kill Aura"
+	Name = "Điều Chỉnh Phạm Vi Kill Aura"
 })
 
-TabAura:AddSlider({
+TabFarm:AddSlider({
 	Name = "Phạm vi Kill Aura",
 	Min = 0,
 	Max = 500,
@@ -429,11 +430,11 @@ TabAura:AddSlider({
 })
 
 TabAura:AddSection({
-	Name = "Chỉnh Độ Rõ Của Phạm Vi Kill Aura"
+	Name = "Điều Chỉnh Độ Rõ Màu Của Vòng Kill Aura"
 })
 
-TabAura:AddSlider({
-	Name = "Độ Sáng Vòng Kill Aura",
+TabFarm:AddSlider({
+	Name = "Độ Rõ KillAurra",
 	Min = 0,
 	Max = 100,
 	Default = 50,
@@ -446,11 +447,11 @@ TabAura:AddSlider({
 })
 
 TabAura:AddSection({
-	Name = "Bật Phạm Vi Kill Aura"
+	Name = "Bấm Vào Để Hiển Thị Phạm Vi Kill Aura"
 })
 
 TabAura:AddToggle({
-	Name = "👁️ Phạm Vi Kill Aura",
+	Name = "👁️ Hiển thị Kill Aura",
 	Default = false,
 	Callback = function(Value)
 		getgenv().ShowRange = Value
@@ -458,11 +459,11 @@ TabAura:AddToggle({
 })
 
 TabAura:AddSection({
-	Name = "Đổi Màu Cho Phạm Vi"
+	Name = "Điều Chỉnh Màu"
 })
 
-TabAura:AddColorpicker({
-	Name = "Đổi Màu",
+TabFarm:AddColorpicker({
+	Name = "Màu Phạm Vi",
 	Default = Color3.fromRGB(0, 255, 100),
 	Callback = function(Value)
 		getgenv().RangeColor = Value
@@ -470,11 +471,11 @@ TabAura:AddColorpicker({
 })
 
 TabAura:AddSection({
-	Name = "Thích Cầu Vồng Thì Đổi Cầu Vòng"
+	Name = "Thích Thì Bật"
 })
 
 TabAura:AddToggle({
-	Name = "🌈 Đổi Màu Cầu vồng",
+	Name = "🌈 Chế độ Cầu vồng",
 	Default = false,
 	Callback = function(Value)
 		getgenv().RainbowRange = Value
@@ -482,7 +483,45 @@ TabAura:AddToggle({
 })
 
 TabAura:AddSection({
-	Name = "Bật Kill Aura"
+	Name = "Để Làm Cảnh"
+})
+
+TabAura:AddToggle({
+	Name = "💓 Hiệu ứng Nhịp đập",
+	Default = false,
+	Callback = function(Value)
+		getgenv().PulseEffect = Value
+	end
+})
+
+task.spawn(function()
+    while true do
+        task.wait()
+        local lp = game.Players.LocalPlayer
+        if getgenv().ShowRange and lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
+            local sizeOffset = 0
+            if getgenv().PulseEffect then
+                sizeOffset = math.sin(tick() * 5) * 2
+            end
+            
+            local currentSize = (getgenv().KillAuraRange * 2) + sizeOffset
+            RangeVisual.CFrame = lp.Character.HumanoidRootPart.CFrame * CFrame.Angles(0, 0, math.rad(90))
+            RangeVisual.Size = Vector3.new(0.1, currentSize, currentSize)
+            
+            if getgenv().RainbowRange then
+                RangeVisual.Color = Color3.fromHSV(tick() % 5 / 5, 1, 1)
+            else
+                RangeVisual.Color = getgenv().RangeColor
+            end
+            RangeVisual.Transparency = getgenv().VisualTransparency
+        else
+            RangeVisual.Transparency = 1
+        end
+    end
+end)
+
+TabAura:AddSection({
+	Name = "Bấm Vào Để Kill Aura"
 })
 
 TabAura:AddToggle({
