@@ -1,0 +1,613 @@
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/tanloczx/Shadow-Hubvn/refs/heads/main/Orion.lua.txt')))()
+
+local Window = OrionLib:MakeWindow({
+    Name = "Shadow Hub V2", 
+    HidePremium = false, 
+    SaveConfig = true, 
+    ConfigFolder = "OrionTest"
+})
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "Toggleui"
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+ScreenGui.ResetOnSpawn = false
+
+local Toggle = Instance.new("TextButton")
+Toggle.Name = "Toggle"
+Toggle.Parent = ScreenGui
+Toggle.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Toggle.BackgroundTransparency = 0.5
+Toggle.Position = UDim2.new(0, 10, 0.454706937, 0)
+Toggle.Size = UDim2.new(0, 50, 0, 50)
+Toggle.Text = ""
+Toggle.Draggable = true
+
+local Corner = Instance.new("UICorner")
+Corner.CornerRadius = UDim.new(0.2, 0)
+Corner.Parent = Toggle
+
+local Image = Instance.new("ImageLabel")
+Image.Name = "Icon"
+Image.Parent = Toggle
+Image.Size = UDim2.new(1, 0, 1, 0)
+Image.BackgroundTransparency = 1
+Image.Image = "rbxassetid://115716715478730" 
+
+local Corner2 = Instance.new("UICorner")
+Corner2.CornerRadius = UDim.new(0.2, 0)
+Corner2.Parent = Image
+
+Toggle.MouseButton1Click:Connect(function()
+    OrionLib:ToggleUi()
+end)
+
+local TabMain = Window:MakeTab({Name = "Main🔥", Icon = "rbxassetid://4483362458", Premium = false})
+local TabTele = Window:MakeTab({Name = "Teleport 🏞️", Icon = "rbxassetid://4483362458", Premium = false})
+local TabFarm = Window:MakeTab({Name = "Farm🔮", Icon = "rbxassetid://4483362458", Premium = false})
+local TabSkill = Window:MakeTab({Name = "Skill⚔️", Icon = "rbxassetid://4483362458", Premium = false})
+local TabCheck = Window:MakeTab({Name = "Check Level 🔍", Icon = "rbxassetid://4483362458", Premium = false})
+local TabAura = Window:MakeTab({Name = "Kill Aura🌀", Icon = "rbxassetid://4483362458", Premium = false})
+
+getgenv().AutoArmor = false
+TabMain:AddToggle({
+    Name = "Auto Armor 🛡️",
+    Default = false,
+    Callback = function(Value)
+        getgenv().AutoArmor = Value
+    end
+})
+
+task.spawn(function()
+    while true do
+        if getgenv().AutoArmor then
+            local armors = {"Cursed-Armor","Unique-Armor","Darkness-Armor","Thunder-Armor","Diamond-Armor","Golden-Armor","Epic-Armor","Iron-Armor","Godly-Armor"}
+            for _, player in pairs(game:GetService("Players"):GetPlayers()) do
+                local backpack = player:FindFirstChild("Backpack")
+                if backpack then
+                    for _, armorName in pairs(armors) do
+                        local armor = backpack:FindFirstChild(armorName)
+                        if armor and armor:FindFirstChild("K") and armor.K:FindFirstChild("Fire") then
+                            armor.K.Fire:FireServer()
+                        end
+                    end
+                end
+            end
+        end
+        task.wait(0.1)
+    end
+end)
+
+TabMain:AddToggle({
+    Name = "Anti-AFK",
+    Default = false,
+    Callback = function(Value)
+        getgenv().AntiAFK = Value
+    end
+})
+
+game:GetService("Players").LocalPlayer.Idled:Connect(function()
+    if getgenv().AntiAFK then
+        game:GetService("VirtualUser"):CaptureController()
+        game:GetService("VirtualUser"):ClickButton2(Vector2.new())
+    end
+end)
+
+getgenv().AutoRotateSlot = false
+TabMain:AddToggle({
+    Name = "Auto Equip",
+    Default = false,
+    Callback = function(Value)
+        getgenv().AutoRotateSlot = Value
+        if Value then
+            task.spawn(function()
+                local currentSlot = 1
+                while getgenv().AutoRotateSlot do
+                    pcall(function()
+                        local lp = game.Players.LocalPlayer
+                        if lp.Character and lp.Character:FindFirstChildOfClass("Humanoid") then
+                            local tools = lp.Backpack:GetChildren()
+                            if tools[currentSlot] then
+                                lp.Character.Humanoid:EquipTool(tools[currentSlot])
+                            end
+                            currentSlot = currentSlot >= 3 and 1 or currentSlot + 1
+                        end
+                    end)
+                    task.wait(0.1)
+                end
+            end)
+        end
+    end
+})
+
+getgenv().AutoStoreOwnerBlade = false
+TabMain:AddToggle({
+    Name = "Auto Store",
+    Default = false,
+    Callback = function(Value)
+        getgenv().AutoStoreOwnerBlade = Value
+        if Value then
+            task.spawn(function()
+                while getgenv().AutoStoreOwnerBlade do
+                    pcall(function()
+                        local lp = game.Players.LocalPlayer
+                        local targetName = "OwnerBlade-Box"
+                        local item = lp.Character:FindFirstChild(targetName) or lp.Backpack:FindFirstChild(targetName)
+                        if item then
+                            if not lp.Character:FindFirstChild(targetName) then
+                                lp.Character.Humanoid:EquipTool(item)
+                                task.wait(0.5)
+                            end
+                            for i = 1, 15 do
+                                if lp.Character:FindFirstChild(targetName) then
+                                    game:GetService("ReplicatedStorage").Save.SavingEvent:FireServer(i)
+                                    task.wait(0.2)
+                                else break end
+                            end
+                        end
+                    end)
+                    task.wait(1)
+                end
+            end)
+        end
+    end
+})
+
+TabMain:AddToggle({
+    Name = "👁️ Esp Player",
+    Default = false,
+    Callback = function(Value)
+        _G.PlayerESP = Value
+        
+        local Players = game:GetService("Players")
+        local LocalPlayer = Players.LocalPlayer
+        local RunService = game:GetService("RunService")
+
+        local function CreateESP(plr)
+            if plr == LocalPlayer then return end
+            if not _G.PlayerESP then return end
+            
+            if plr.Character and plr.Character:FindFirstChild("Head") then
+                
+                if plr.Character:FindFirstChild("FullESP") then
+                    plr.Character.FullESP:Destroy()
+                end
+                
+                local Billboard = Instance.new("BillboardGui")
+                Billboard.Size = UDim2.new(0, 150, 0, 50)
+                Billboard.AlwaysOnTop = true
+                Billboard.Name = "FullESP"
+                Billboard.Parent = plr.Character.Head
+                Billboard.ExtentsOffset = Vector3.new(0, 3, 0)
+                
+                local TextLabel = Instance.new("TextLabel")
+                TextLabel.Size = UDim2.new(1, 0, 1, 0)
+                TextLabel.BackgroundTransparency = 1
+                TextLabel.TextScaled = false
+                TextLabel.TextSize = 12
+                TextLabel.Font = Enum.Font.GothamBold
+                TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+                TextLabel.TextStrokeTransparency = 0
+                TextLabel.Parent = Billboard
+
+                local Highlight = Instance.new("Highlight")
+                Highlight.FillTransparency = 0.5
+                Highlight.OutlineTransparency = 0
+                Highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                Highlight.Parent = plr.Character
+                Highlight.Adornee = plr.Character
+
+                RunService.RenderStepped:Connect(function()
+                    if not _G.PlayerESP then
+                        if Billboard then Billboard:Destroy() end
+                        if Highlight then Highlight:Destroy() end
+                        return
+                    end
+                    
+                    if plr.Character and 
+                       plr.Character:FindFirstChild("Head") and 
+                       plr.Character:FindFirstChild("Humanoid") and
+                       plr.Character:FindFirstChild("HumanoidRootPart") and
+                       LocalPlayer.Character and
+                       LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                        
+                        local Humanoid = plr.Character.Humanoid
+                        local Distance = math.floor(
+                            (LocalPlayer.Character.HumanoidRootPart.Position - 
+                             plr.Character.HumanoidRootPart.Position).Magnitude
+                        )
+                        
+                        local HP = math.floor(Humanoid.Health)
+                        local MaxHP = math.floor(Humanoid.MaxHealth)
+                        
+                        TextLabel.Text = plr.Name .. "\n[HP: " .. HP .. "/" .. MaxHP .. "]\nKhoảng cách: " .. Distance .. "m"
+                        
+                        local hue = (tick() % 5) / 5
+                        local rainbowColor = Color3.fromHSV(hue, 1, 1)
+                        Highlight.FillColor = rainbowColor
+                        Highlight.OutlineColor = rainbowColor
+                    end
+                end)
+            end
+        end
+
+        if _G.PlayerESP then
+            for _, v in pairs(Players:GetPlayers()) do
+                CreateESP(v)
+            end
+            Players.PlayerAdded:Connect(CreateESP)
+        else
+            for _, v in pairs(Players:GetPlayers()) do
+                if v.Character then
+                    if v.Character:FindFirstChild("FullESP") then
+                        v.Character.FullESP:Destroy()
+                    end
+                    if v.Character:FindFirstChildOfClass("Highlight") then
+                        v.Character:FindFirstChildOfClass("Highlight"):Destroy()
+                    end
+                end
+            end
+        end
+    end,
+})
+
+local SelectedPlayer = nil
+local PlayerList = {}
+
+for _, v in pairs(game.Players:GetPlayers()) do
+    table.insert(PlayerList, v.Name)
+end
+
+local InfoBox = TabCheck:AddParagraph("Thông tin người chơi", "Vui lòng chọn người chơi và bấm nút Check")
+
+local PlayerDropdown = TabCheck:AddDropdown({
+    Name = "Chọn người chơi",
+    Default = "",
+    Options = PlayerList,
+    Callback = function(Value)
+        SelectedPlayer = game.Players:FindFirstChild(Value)
+    end    
+})
+
+TabCheck:AddButton({
+    Name = "Làm mới danh sách",
+    Callback = function()
+        local NewList = {}
+        for _, v in pairs(game.Players:GetPlayers()) do
+            table.insert(NewList, v.Name)
+        end
+        PlayerDropdown:Refresh(NewList, true)
+        OrionLib:MakeNotification({
+            Name = "Hệ thống",
+            Content = "Đã cập nhật danh sách người chơi mới!",
+            Time = 3
+        })
+    end    
+})
+
+TabCheck:AddButton({
+    Name = "Check Level",
+    Callback = function()
+        if SelectedPlayer then
+            local Level = "Không xác định"
+            if SelectedPlayer:FindFirstChild("Data") and SelectedPlayer.Data:FindFirstChild("Levels") then
+                Level = SelectedPlayer.Data.Levels.Value
+            end
+            
+            local resultText = "⭐ Level hiện tại: " .. tostring(Level)
+            InfoBox:Set("Kết quả cho: " .. SelectedPlayer.Name, resultText)
+            
+            OrionLib:MakeNotification({
+                Name = "Thông tin Level",
+                Content = SelectedPlayer.Name .. " đang ở Level: " .. tostring(Level),
+                Time = 5
+            })
+        else
+            OrionLib:MakeNotification({Name = "Lỗi", Content = "Vui lòng chọn người chơi!", Time = 3})
+        end
+    end    
+})
+
+TabCheck:AddButton({
+    Name = "Check Beli",
+    Callback = function()
+        if SelectedPlayer then
+            local Beli = "Không xác định"
+            if SelectedPlayer:FindFirstChild("Data") and SelectedPlayer.Data:FindFirstChild("Belis") then
+                Beli = SelectedPlayer.Data.Belis.Value
+            end
+            
+            local resultText = "💰 Số tiền hiện có: " .. tostring(Beli)
+            InfoBox:Set("Kết quả cho: " .. SelectedPlayer.Name, resultText)
+            
+            OrionLib:MakeNotification({
+                Name = "Thông tin Beli",
+                Content = SelectedPlayer.Name .. " hiện có: " .. tostring(Beli) .. " Beli",
+                Time = 5
+            })
+        else
+            OrionLib:MakeNotification({Name = "Lỗi", Content = "Vui lòng chọn người chơi!", Time = 3})
+        end
+    end    
+})
+
+TabCheck:AddButton({
+    Name = "Check Item đang cầm",
+    Callback = function()
+        if SelectedPlayer then
+            local ToolName = "Không cầm gì"
+            local Tool = SelectedPlayer.Character:FindFirstChildOfClass("Tool")
+            if Tool then
+                ToolName = Tool.Name
+            end
+            
+            local resultText = "⚔️ Vật phẩm đang cầm: " .. ToolName
+            InfoBox:Set("Kết quả cho: " .. SelectedPlayer.Name, resultText)
+            
+            OrionLib:MakeNotification({
+                Name = "Thông tin Item",
+                Content = SelectedPlayer.Name .. " đang cầm: " .. ToolName,
+                Time = 5
+            })
+        else
+            OrionLib:MakeNotification({Name = "Lỗi", Content = "Vui lòng chọn người chơi!", Time = 3})
+        end
+    end    
+})
+
+TabCheck:AddButton({
+    Name = "Check Kho đồ",
+    Callback = function()
+        if SelectedPlayer then
+            local inv = {}
+            for _, item in pairs(SelectedPlayer.Backpack:GetChildren()) do
+                if item:IsA("Tool") then
+                    table.insert(inv, "• " .. item.Name)
+                end
+            end
+            local char = SelectedPlayer.Character
+            if char then
+                local tool = char:FindFirstChildOfClass("Tool")
+                if tool then
+                    table.insert(inv, "• " .. tool.Name .. " (Đang cầm)")
+                end
+            end
+            local result = #inv > 0 and table.concat(inv, "\n") or "Túi đồ trống"
+            
+            InfoBox:Set("Kết quả cho: " .. SelectedPlayer.Name, "🎒 Danh sách kho đồ:\n" .. result)
+            
+            OrionLib:MakeNotification({
+                Name = "Thông tin Kho đồ",
+                Content = "Đã cập nhật danh sách túi đồ của " .. SelectedPlayer.Name,
+                Time = 5
+            })
+        else
+            OrionLib:MakeNotification({Name = "Lỗi", Content = "Vui lòng chọn người chơi!", Time = 3})
+        end
+    end    
+})
+
+local RangeVisual = Instance.new("Part")
+RangeVisual.Name = "KillAuraVisual"
+RangeVisual.Shape = Enum.PartType.Cylinder
+RangeVisual.Material = Enum.Material.ForceField
+RangeVisual.CanCollide = false
+RangeVisual.Anchored = true
+RangeVisual.Transparency = 1
+RangeVisual.Size = Vector3.new(0.5, 0, 0)
+RangeVisual.Parent = workspace
+
+getgenv().KillAuraRange = 50
+getgenv().ShowRange = false
+getgenv().RainbowRange = false
+getgenv().RangeColor = Color3.fromRGB(0, 255, 100)
+getgenv().VisualTransparency = 0.5
+getgenv().PulseEffect = false
+
+TabAura:AddSlider({
+	Name = "Phạm vi Kill Aura",
+	Min = 0,
+	Max = 500,
+	Default = 50,
+	Color = Color3.fromRGB(255, 255, 255),
+	Increment = 1,
+	ValueName = "Studs",
+	Callback = function(Value)
+		getgenv().KillAuraRange = Value
+	end    
+})
+
+TabAura:AddSlider({
+	Name = "Độ đậm lợt (Transparency)",
+	Min = 0,
+	Max = 100,
+	Default = 50,
+	Color = Color3.fromRGB(200, 200, 200),
+	Increment = 1,
+	ValueName = "%",
+	Callback = function(Value)
+		getgenv().VisualTransparency = Value / 100
+	end    
+})
+
+TabAura:AddToggle({
+	Name = "👁️ Hiển thị phạm vi",
+	Default = false,
+	Callback = function(Value)
+		getgenv().ShowRange = Value
+	end
+})
+
+TabAura:AddColorpicker({
+	Name = "Màu vòng tròn",
+	Default = Color3.fromRGB(0, 255, 100),
+	Callback = function(Value)
+		getgenv().RangeColor = Value
+	end	  
+})
+
+TabAura:AddToggle({
+	Name = "🌈 Chế độ Cầu vồng",
+	Default = false,
+	Callback = function(Value)
+		getgenv().RainbowRange = Value
+	end
+})
+
+TabAura:AddToggle({
+	Name = "💓 Hiệu ứng Nhịp đập (Pulse)",
+	Default = false,
+	Callback = function(Value)
+		getgenv().PulseEffect = Value
+	end
+})
+
+task.spawn(function()
+    while true do
+        task.wait()
+        local lp = game.Players.LocalPlayer
+        if getgenv().ShowRange and lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
+            local sizeOffset = 0
+            if getgenv().PulseEffect then
+                sizeOffset = math.sin(tick() * 5) * 2
+            end
+            
+            local currentSize = (getgenv().KillAuraRange * 2) + sizeOffset
+            RangeVisual.CFrame = lp.Character.HumanoidRootPart.CFrame * CFrame.Angles(0, 0, math.rad(90))
+            RangeVisual.Size = Vector3.new(0.1, currentSize, currentSize)
+            
+            if getgenv().RainbowRange then
+                RangeVisual.Color = Color3.fromHSV(tick() % 5 / 5, 1, 1)
+            else
+                RangeVisual.Color = getgenv().RangeColor
+            end
+            RangeVisual.Transparency = getgenv().VisualTransparency
+        else
+            RangeVisual.Transparency = 1
+        end
+    end
+end)
+
+TabAura:AddToggle({
+	Name = "🗡️ Kill Aura",
+	Default = false,
+	Callback = function(Value)
+		getgenv().UltraKillAura = Value
+		if Value then
+			task.spawn(function()
+				while getgenv().UltraKillAura do
+					pcall(function()
+						local lp = game.Players.LocalPlayer
+						lp.SimulationRadius = math.huge
+						lp.MaxSimulationRadius = math.huge
+					end)
+					task.wait(1)
+				end
+			end)
+			task.spawn(function()
+				while getgenv().UltraKillAura do
+					pcall(function()
+						local lp = game.Players.LocalPlayer
+						local mobs = workspace:FindFirstChild("NPC DAMAGE")
+						if mobs and lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
+							for _, mob in ipairs(mobs:GetChildren()) do
+								if not getgenv().UltraKillAura then break end
+								local enemy = mob:FindFirstChild("Enemy") or mob:FindFirstChildOfClass("Humanoid")
+								local mobHrp = mob:FindFirstChild("HumanoidRootPart")
+								if enemy and enemy.Health > 0 and mobHrp then
+									local distance = (lp.Character.HumanoidRootPart.Position - mobHrp.Position).Magnitude
+									if distance <= getgenv().KillAuraRange then
+										enemy.Health = 0
+									end
+								end
+							end
+						end
+					end)
+					task.wait(0.1)
+				end
+			end)
+		end
+	end    
+})
+
+
+getgenv().AutoTeleBoss = false
+getgenv().SelectedBoss = nil
+getgenv().TeleHeight = 10
+
+local CurrentPlaceId = game.PlaceId
+local Sea1_Bosses = {"Boss", "SnowBoss", "Sand", "Enel", "Killer", "RedH", "Blue", "Big", "Ace", "mmm", "Raid", "God"}
+local Sea2_Bosses = {"Kaidou", "Paw User", "King Vampire", "Magma Admiral", "String Admiral", "NickBeo", "Cr7", "Tango", "Garou", "Sukuna", "Grab", "Pride", "KiRin", "Okaka", "Siu_Owner"}
+
+local BossList = {}
+if CurrentPlaceId == 4587545091 then
+    BossList = Sea1_Bosses
+elseif CurrentPlaceId == 7258239416 then
+    BossList = Sea2_Bosses
+else
+    BossList = {"Không tìm thấy Sea"}
+end
+
+TabFarm:AddSection({
+	Name = "Kéo thanh để chỉnh độ cao"
+})
+
+TabFarm:AddSlider({
+	Name = "Độ cao Teleport",
+	Min = 0,
+	Max = 100,
+	Default = 10,
+	Color = Color3.fromRGB(255,255,255),
+	Increment = 1,
+	ValueName = "Studs",
+	Callback = function(Value)
+		getgenv().TeleHeight = Value
+	end    
+})
+
+TabFarm:AddSection({
+	Name = "Chọn boss để tele tới"
+})
+
+TabFarm:AddDropdown({
+	Name = "Chọn Boss",
+	Default = BossList[1],
+	Options = BossList,
+	Callback = function(Value)
+		getgenv().SelectedBoss = Value
+	end    
+})
+
+TabFarm:AddSection({
+	Name = "bật để tele boss"
+})
+
+TabFarm:AddToggle({
+	Name = "Auto Teleport Boss",
+	Default = false,
+	Callback = function(Value)
+		getgenv().AutoTeleBoss = Value
+		local lp = game.Players.LocalPlayer
+		if Value then
+			task.spawn(function()
+				while getgenv().AutoTeleBoss do
+					pcall(function()
+						if getgenv().SelectedBoss and lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
+							local bossFolder = workspace:FindFirstChild("NPC DAMAGE")
+							local targetBoss = bossFolder and bossFolder:FindFirstChild(getgenv().SelectedBoss)
+							if targetBoss and targetBoss:FindFirstChild("HumanoidRootPart") then
+								local hrp = lp.Character.HumanoidRootPart
+								hrp.Velocity = Vector3.new(0, 0, 0)
+								local targetPos = targetBoss.HumanoidRootPart.CFrame * CFrame.new(0, getgenv().TeleHeight, 0)
+								hrp.CFrame = targetPos * CFrame.Angles(math.rad(-90), 0, 0)
+							end
+						end
+					end)
+					task.wait() 
+				end
+			end)
+		end
+	end    
+})
+
+
+OrionLib:Init()
