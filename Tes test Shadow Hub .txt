@@ -271,52 +271,6 @@ TabEsp:AddToggle({
 })
 
 
-local function CreateBackpackESP(Player)
-	if Player == LP then return end
-	
-	local Billboard = Instance.new("BillboardGui")
-	Billboard.Size = UDim2.new(0,200,0,40)
-	Billboard.AlwaysOnTop = true
-	Billboard.Parent = ESPFolder
-	
-	local Text = Instance.new("TextLabel", Billboard)
-	Text.Size = UDim2.new(1,0,1,0)
-	Text.BackgroundTransparency = 1
-	Text.TextColor3 = Color3.new(0,1,1)
-	Text.TextStrokeTransparency = 0
-	Text.TextScaled = true
-	
-	task.spawn(function()
-		while BackpackESPEnabled and Player.Parent do
-			local Char = Player.Character
-			if Char and Char:FindFirstChild("Head") then
-				Billboard.Adornee = Char.Head
-				local tools = {}
-				for _,t in pairs(Player.Backpack:GetChildren()) do
-					table.insert(tools, t.Name)
-				end
-				Text.Text = table.concat(tools,", ")
-				Text.TextSize = ESPSize
-			end
-			task.wait(1)
-		end
-		Billboard:Destroy()
-	end)
-end
-
-TabEsp:AddToggle({
-	Name = "ESP Backpack",
-	Default = false,
-	Callback = function(v)
-		BackpackESPEnabled = v
-		if v then
-			for _,p in pairs(game.Players:GetPlayers()) do
-				CreateBackpackESP(p)
-			end
-		end
-	end
-})
-
 
 local SelectedPlayer = nil
 local PlayerList = {}
