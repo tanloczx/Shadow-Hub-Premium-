@@ -47,6 +47,7 @@ local TabFarm = Window:MakeTab({Name = "Farm🔮", Icon = "rbxassetid://44833624
 local TabSkill = Window:MakeTab({Name = "Skill⚔️", Icon = "rbxassetid://4483362458", Premium = false})
 local TabCheck = Window:MakeTab({Name = "Check Level 🔍", Icon = "rbxassetid://4483362458", Premium = false})
 local TabAura = Window:MakeTab({Name = "Kill Aura🌀", Icon = "rbxassetid://4483362458", Premium = false})
+local TabEsp= Window:MakeTab({Name = "Esp👁️", Icon = "rbxassetid://4483362458", Premium = false})
 
 TabMain:AddSection({
 	Name = "Bật Tự Động Sử Dụng Giáp"
@@ -171,7 +172,7 @@ TabMain:AddSection({
 	Name = "Xem Player Ở Đâu"
 })
 
-TabMain:AddToggle({
+TabEsp:AddToggle({
     Name = "👁️ Esp Player",
     Default = false,
     Callback = function(Value)
@@ -267,6 +268,90 @@ TabMain:AddToggle({
             end
         end
     end,
+})
+
+local SelectedPlayerESP = nil
+local ESPFolder = Instance.new("Folder", workspace)
+ESPFolder.Name = "LocAzaria_ESP"
+
+local function GetPlayerNames()
+    local names = {}
+    for _, p in pairs(game.Players:GetPlayers()) do
+        if p ~= game.Players.LocalPlayer then
+            table.insert(names, p.Name)
+        end
+    end
+    return names
+end
+
+local function CreateBoxESP(Player)
+    local Box = Instance.new("BoxHandleAdornment")
+    Box.Name = "BoxESP"
+    Box.AlwaysOnTop = true
+    Box.ZIndex = 5
+    Box.Adornee = nil
+    Box.Color3 = Color3.fromRGB(255, 0, 0)
+    Box.Transparency = 0.5
+    Box.Size = Vector3.new(4, 6, 1)
+    Box.Parent = ESPFolder
+
+    task.spawn(function()
+        while BoxESPEnabled and Player.Parent do
+            if Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
+                Box.Adornee = Player.Character.HumanoidRootPart
+                Box.Visible = true
+            else
+                Box.Visible = false
+            end
+            task.wait(0.1)
+        end
+        Box:Destroy()
+    end)
+end
+
+TabEsp:AddSection({
+	Name = "Soi Người Chơi"
+})
+
+local PlayerDropdown = TabEsp:AddDropdown({
+	Name = "Chọn Player để soi Backpack",
+	Default = "Chưa chọn",
+	Options = GetPlayerNames(),
+	Callback = function(Value)
+		SelectedPlayerESP = Value
+	end    
+})
+
+TabEsp:AddButton({
+	Name = "Làm mới danh sách Player",
+	Callback = function()
+		PlayerDropdown:Refresh(GetPlayerNames(), true)
+	end
+})
+
+TabEsp:AddToggle({
+	Name = "📦 Box ESP",
+	Default = false,
+	Callback = function(v)
+		BoxESPEnabled = v
+		if v then
+			for _, p in pairs(game.Players:GetPlayers()) do
+				if p ~= game.Players.LocalPlayer then CreateBoxESP(p) end
+			end
+		end
+	end
+})
+
+TabEsp:AddToggle({
+	Name = "🎒 ESP Backpack",
+	Default = false,
+	Callback = function(v)
+		BackpackESPEnabled = v
+		if v and SelectedPlayerESP then
+			local p = game.Players:FindFirstChild(SelectedPlayerESP)
+			if p then CreateBackpackESP(p) end
+		end
+	end
 })
 
 
@@ -416,7 +501,7 @@ TabAura:AddSection({
 	Name = "Điều Chỉnh Phạm Vi Kill Aura"
 })
 
-TabFarm:AddSlider({
+TabAura:AddSlider({
 	Name = "Phạm vi Kill Aura",
 	Min = 0,
 	Max = 500,
@@ -433,7 +518,7 @@ TabAura:AddSection({
 	Name = "Điều Chỉnh Độ Rõ Màu Của Vòng Kill Aura"
 })
 
-TabFarm:AddSlider({
+TabAura:AddSlider({
 	Name = "Độ Rõ KillAurra",
 	Min = 0,
 	Max = 100,
@@ -462,7 +547,7 @@ TabAura:AddSection({
 	Name = "Điều Chỉnh Màu"
 })
 
-TabFarm:AddColorpicker({
+TabAura:AddColorpicker({
 	Name = "Màu Phạm Vi",
 	Default = Color3.fromRGB(0, 255, 100),
 	Callback = function(Value)
