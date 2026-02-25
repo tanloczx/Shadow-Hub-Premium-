@@ -168,7 +168,7 @@ TabMain:AddToggle({
     end
 })
 
-TabMain:AddSection({
+TabEsp:AddSection({
 	Name = "Xem Player Ở Đâu"
 })
 
@@ -270,54 +270,52 @@ TabEsp:AddToggle({
     end,
 })
 
+
 local function CreateBackpackESP(Player)
-    if Player == game.Players.LocalPlayer then return end
-    
-    local Billboard = Instance.new("BillboardGui")
-    Billboard.Size = UDim2.new(0, 200, 0, 100)
-    Billboard.AlwaysOnTop = true
-    Billboard.Parent = ESPFolder
-    
-    local Text = Instance.new("TextLabel", Billboard)
-    Text.Size = UDim2.new(1, 0, 1, 0)
-    Text.BackgroundTransparency = 1
-    Text.TextColor3 = Color3.fromRGB(0, 255, 255)
-    Text.TextStrokeTransparency = 0
-    Text.TextScaled = false
-    Text.TextSize = 14
-    
-    task.spawn(function()
-        while BackpackESPEnabled and Player.Parent do
-            local Char = Player.Character
-            if Char and Char:FindFirstChild("Head") then
-                Billboard.Adornee = Char.Head
-                
-                local tools = {}
-                -- 1. Kiểm tra đồ đang cầm trên tay
-                local toolInHand = Char:FindFirstChildOfClass("Tool")
-                if toolInHand then 
-                    table.insert(tools, "🔥 [" .. toolInHand.Name .. "]") 
-                end
-                
-                -- 2. Kiểm tra đồ trong Backpack
-                for _, t in pairs(Player.Backpack:GetChildren()) do
-                    if t:IsA("Tool") then
-                        table.insert(tools, "📦 " .. t.Name)
-                    end
-                end
-                
-                -- 3. Hiển thị kết quả
-                if #tools > 0 then
-                    Text.Text = table.concat(tools, "\n")
-                else
-                    Text.Text = "--- Túi Trống ---"
-                end
-            end
-            task.wait(1)
-        end
-        Billboard:Destroy()
-    end)
+	if Player == LP then return end
+	
+	local Billboard = Instance.new("BillboardGui")
+	Billboard.Size = UDim2.new(0,200,0,40)
+	Billboard.AlwaysOnTop = true
+	Billboard.Parent = ESPFolder
+	
+	local Text = Instance.new("TextLabel", Billboard)
+	Text.Size = UDim2.new(1,0,1,0)
+	Text.BackgroundTransparency = 1
+	Text.TextColor3 = Color3.new(0,1,1)
+	Text.TextStrokeTransparency = 0
+	Text.TextScaled = true
+	
+	task.spawn(function()
+		while BackpackESPEnabled and Player.Parent do
+			local Char = Player.Character
+			if Char and Char:FindFirstChild("Head") then
+				Billboard.Adornee = Char.Head
+				local tools = {}
+				for _,t in pairs(Player.Backpack:GetChildren()) do
+					table.insert(tools, t.Name)
+				end
+				Text.Text = table.concat(tools,", ")
+				Text.TextSize = ESPSize
+			end
+			task.wait(1)
+		end
+		Billboard:Destroy()
+	end)
 end
+
+TabEsp:AddToggle({
+	Name = "ESP Backpack",
+	Default = false,
+	Callback = function(v)
+		BackpackESPEnabled = v
+		if v then
+			for _,p in pairs(game.Players:GetPlayers()) do
+				CreateBackpackESP(p)
+			end
+		end
+	end
+})
 
 
 local SelectedPlayer = nil
