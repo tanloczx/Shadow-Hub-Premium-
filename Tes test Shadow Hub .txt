@@ -270,89 +270,54 @@ TabEsp:AddToggle({
     end,
 })
 
-local SelectedPlayerESP = nil
-local ESPFolder = Instance.new("Folder", workspace)
-ESPFolder.Name = "LocAzaria_ESP"
-
-local function GetPlayerNames()
-    local names = {}
-    for _, p in pairs(game.Players:GetPlayers()) do
-        if p ~= game.Players.LocalPlayer then
-            table.insert(names, p.Name)
-        end
-    end
-    return names
-end
-
-local function CreateBoxESP(Player)
-    local Box = Instance.new("BoxHandleAdornment")
-    Box.Name = "BoxESP"
-    Box.AlwaysOnTop = true
-    Box.ZIndex = 5
-    Box.Adornee = nil
-    Box.Color3 = Color3.fromRGB(255, 0, 0)
-    Box.Transparency = 0.5
-    Box.Size = Vector3.new(4, 6, 1)
-    Box.Parent = ESPFolder
-
+local function CreateBackpackESP(Player)
+    if Player == game.Players.LocalPlayer then return end
+    
+    local Billboard = Instance.new("BillboardGui")
+    Billboard.Size = UDim2.new(0, 200, 0, 100)
+    Billboard.AlwaysOnTop = true
+    Billboard.Parent = ESPFolder
+    
+    local Text = Instance.new("TextLabel", Billboard)
+    Text.Size = UDim2.new(1, 0, 1, 0)
+    Text.BackgroundTransparency = 1
+    Text.TextColor3 = Color3.fromRGB(0, 255, 255)
+    Text.TextStrokeTransparency = 0
+    Text.TextScaled = false
+    Text.TextSize = 14
+    
     task.spawn(function()
-        while BoxESPEnabled and Player.Parent do
-            if Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
-                Box.Adornee = Player.Character.HumanoidRootPart
-                Box.Visible = true
-            else
-                Box.Visible = false
+        while BackpackESPEnabled and Player.Parent do
+            local Char = Player.Character
+            if Char and Char:FindFirstChild("Head") then
+                Billboard.Adornee = Char.Head
+                
+                local tools = {}
+                -- 1. Kiểm tra đồ đang cầm trên tay
+                local toolInHand = Char:FindFirstChildOfClass("Tool")
+                if toolInHand then 
+                    table.insert(tools, "🔥 [" .. toolInHand.Name .. "]") 
+                end
+                
+                -- 2. Kiểm tra đồ trong Backpack
+                for _, t in pairs(Player.Backpack:GetChildren()) do
+                    if t:IsA("Tool") then
+                        table.insert(tools, "📦 " .. t.Name)
+                    end
+                end
+                
+                -- 3. Hiển thị kết quả
+                if #tools > 0 then
+                    Text.Text = table.concat(tools, "\n")
+                else
+                    Text.Text = "--- Túi Trống ---"
+                end
             end
-            task.wait(0.1)
+            task.wait(1)
         end
-        Box:Destroy()
+        Billboard:Destroy()
     end)
 end
-
-TabEsp:AddSection({
-	Name = "Soi Người Chơi"
-})
-
-local PlayerDropdown = TabEsp:AddDropdown({
-	Name = "Chọn Player để soi Backpack",
-	Default = "Chưa chọn",
-	Options = GetPlayerNames(),
-	Callback = function(Value)
-		SelectedPlayerESP = Value
-	end    
-})
-
-TabEsp:AddButton({
-	Name = "Làm mới danh sách Player",
-	Callback = function()
-		PlayerDropdown:Refresh(GetPlayerNames(), true)
-	end
-})
-
-TabEsp:AddToggle({
-	Name = "📦 Box ESP",
-	Default = false,
-	Callback = function(v)
-		BoxESPEnabled = v
-		if v then
-			for _, p in pairs(game.Players:GetPlayers()) do
-				if p ~= game.Players.LocalPlayer then CreateBoxESP(p) end
-			end
-		end
-	end
-})
-
-TabEsp:AddToggle({
-	Name = "🎒 ESP Backpack",
-	Default = false,
-	Callback = function(v)
-		BackpackESPEnabled = v
-		if v and SelectedPlayerESP then
-			local p = game.Players:FindFirstChild(SelectedPlayerESP)
-			if p then CreateBackpackESP(p) end
-		end
-	end
-})
 
 
 local SelectedPlayer = nil
