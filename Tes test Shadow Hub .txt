@@ -47,7 +47,6 @@ local TabFarm = Window:MakeTab({Name = "Farm🔮", Icon = "rbxassetid://44833624
 local TabSkill = Window:MakeTab({Name = "Skill⚔️", Icon = "rbxassetid://4483362458", Premium = false})
 local TabCheck = Window:MakeTab({Name = "Check Level 🔍", Icon = "rbxassetid://4483362458", Premium = false})
 local TabAura = Window:MakeTab({Name = "Kill Aura🌀", Icon = "rbxassetid://4483362458", Premium = false})
-local TabEsp= Window:MakeTab({Name = "Esp👁️", Icon = "rbxassetid://4483362458", Premium = false})
 
 TabMain:AddSection({
 	Name = "Bật Tự Động Sử Dụng Giáp"
@@ -168,11 +167,11 @@ TabMain:AddToggle({
     end
 })
 
-TabEsp:AddSection({
+TabMain:AddSection({
 	Name = "Xem Player Ở Đâu"
 })
 
-TabEsp:AddToggle({
+TabNain:AddToggle({
     Name = "👁️ Esp Player",
     Default = false,
     Callback = function(Value)
