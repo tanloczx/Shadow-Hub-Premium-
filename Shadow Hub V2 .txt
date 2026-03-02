@@ -1,0 +1,1538 @@
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/tanloczx/Shadow-Hubvn/refs/heads/main/Orion.lua.txt')))()
+
+local Window = OrionLib:MakeWindow({
+    Name = "Shadow Hub V2", 
+    HidePremium = false, 
+    SaveConfig = true, 
+    ConfigFolder = "OrionTest"
+})
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "Toggleui"
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+ScreenGui.ResetOnSpawn = false
+
+local Toggle = Instance.new("TextButton")
+Toggle.Name = "Toggle"
+Toggle.Parent = ScreenGui
+Toggle.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Toggle.BackgroundTransparency = 0.5
+Toggle.Position = UDim2.new(0, 10, 0.454706937, 0)
+Toggle.Size = UDim2.new(0, 50, 0, 50)
+Toggle.Text = ""
+Toggle.Draggable = true
+
+local Corner = Instance.new("UICorner")
+Corner.CornerRadius = UDim.new(0.2, 0)
+Corner.Parent = Toggle
+
+local Image = Instance.new("ImageLabel")
+Image.Name = "Icon"
+Image.Parent = Toggle
+Image.Size = UDim2.new(1, 0, 1, 0)
+Image.BackgroundTransparency = 1
+Image.Image = "rbxassetid://115716715478730" 
+
+local Corner2 = Instance.new("UICorner")
+Corner2.CornerRadius = UDim.new(0.2, 0)
+Corner2.Parent = Image
+
+Toggle.MouseButton1Click:Connect(function()
+    OrionLib:ToggleUi()
+end)
+
+local TabMain = Window:MakeTab({Name = "Main🔥", Icon = "rbxassetid://4483362458", Premium = false})
+local TabTele = Window:MakeTab({Name = "Teleport 🏞️", Icon = "rbxassetid://4483362458", Premium = false})
+local TabFarm = Window:MakeTab({Name = "Farm🔮", Icon = "rbxassetid://4483362458", Premium = false})
+local TabSkill = Window:MakeTab({Name = "Skill + Stat⚔️", Icon = "rbxassetid://4483362458", Premium = false})
+local TabCheck = Window:MakeTab({Name = "Check Level 🔍", Icon = "rbxassetid://4483362458", Premium = false})
+local TabAura = Window:MakeTab({Name = "Kill Aura🌀", Icon = "rbxassetid://4483362458", Premium = false})
+local TabEsp = Window:MakeTab({Name = "Esp 👁️", Icon = "rbxassetid://4483362458", Premium = false})
+local TabItem= Window:MakeTab({Name = "Item💰", Icon = "rbxassetid://4483362458", Premium = false})
+local TabPlay= Window:MakeTab({Name = "Player👤", Icon = "rbxassetid://4483362458", Premium = false})
+local TabWalk= Window:MakeTab({Name = "Walk Speed🦵", Icon = "rbxassetid://4483362458", Premium = false})
+local TabServer = Window:MakeTab({Name = "Server 🌐",Icon = "rbxassetid://4483345998",PremiumOnly = false})
+local TabFruit= Window:MakeTab({Name = "Fruit+Inf Beli🍎💰", Icon = "rbxassetid://4483362458", Premium = false})
+local TabMisc= Window:MakeTab({Name = "!'Misc", Icon = "rbxassetid://4483362458", Premium = false})
+
+
+TabMain:AddSection({
+	Name = "Bật Tự Động Sử Dụng Giáp"
+})
+getgenv().AutoArmor = false
+TabMain:AddToggle({
+    Name = "Auto Armor 🛡️",
+    Default = false,
+    Callback = function(Value)
+        getgenv().AutoArmor = Value
+    end
+})
+
+task.spawn(function()
+    while true do
+        if getgenv().AutoArmor then
+            local armors = {"Cursed-Armor","Unique-Armor","Darkness-Armor","Thunder-Armor","Diamond-Armor","Golden-Armor","Epic-Armor","Iron-Armor","Godly-Armor"}
+            for _, player in pairs(game:GetService("Players"):GetPlayers()) do
+                local backpack = player:FindFirstChild("Backpack")
+                if backpack then
+                    for _, armorName in pairs(armors) do
+                        local armor = backpack:FindFirstChild(armorName)
+                        if armor and armor:FindFirstChild("K") and armor.K:FindFirstChild("Fire") then
+                            armor.K.Fire:FireServer()
+                        end
+                    end
+                end
+            end
+        end
+        task.wait(0.1)
+    end
+end)
+
+TabMain:AddSection({
+	Name = "Bấm Vào Để Anti Afk"
+})
+
+TabMain:AddToggle({
+    Name = "Anti-AFK",
+    Default = false,
+    Callback = function(Value)
+        getgenv().AntiAFK = Value
+    end
+})
+
+game:GetService("Players").LocalPlayer.Idled:Connect(function()
+    if getgenv().AntiAFK then
+        game:GetService("VirtualUser"):CaptureController()
+        game:GetService("VirtualUser"):ClickButton2(Vector2.new())
+    end
+end)
+
+TabMain:AddSection({
+	Name = "Bật Lên Để Auto Equip"
+})
+
+getgenv().AutoRotateSlot = false
+TabMain:AddToggle({
+    Name = "Auto Equip",
+    Default = false,
+    Callback = function(Value)
+        getgenv().AutoRotateSlot = Value
+        if Value then
+            task.spawn(function()
+                local currentSlot = 1
+                while getgenv().AutoRotateSlot do
+                    pcall(function()
+                        local lp = game.Players.LocalPlayer
+                        if lp.Character and lp.Character:FindFirstChildOfClass("Humanoid") then
+                            local tools = lp.Backpack:GetChildren()
+                            if tools[currentSlot] then
+                                lp.Character.Humanoid:EquipTool(tools[currentSlot])
+                            end
+                            currentSlot = currentSlot >= 3 and 1 or currentSlot + 1
+                        end
+                    end)
+                    task.wait(0.1)
+                end
+            end)
+        end
+    end
+})
+
+TabEsp:AddSection({
+	Name = "Xem Player Ở Đâu"
+})
+
+TabEsp:AddToggle({
+    Name = "👁️ Esp Player",
+    Default = false,
+    Callback = function(Value)
+        _G.PlayerESP = Value
+        
+        local Players = game:GetService("Players")
+        local LocalPlayer = Players.LocalPlayer
+        local RunService = game:GetService("RunService")
+
+        local function CreateESP(plr)
+            if plr == LocalPlayer then return end
+            if not _G.PlayerESP then return end
+            
+            if plr.Character and plr.Character:FindFirstChild("Head") then
+                
+                if plr.Character:FindFirstChild("FullESP") then
+                    plr.Character.FullESP:Destroy()
+                end
+                
+                local Billboard = Instance.new("BillboardGui")
+                Billboard.Size = UDim2.new(0, 150, 0, 50)
+                Billboard.AlwaysOnTop = true
+                Billboard.Name = "FullESP"
+                Billboard.Parent = plr.Character.Head
+                Billboard.ExtentsOffset = Vector3.new(0, 3, 0)
+                
+                local TextLabel = Instance.new("TextLabel")
+                TextLabel.Size = UDim2.new(1, 0, 1, 0)
+                TextLabel.BackgroundTransparency = 1
+                TextLabel.TextScaled = false
+                TextLabel.TextSize = 12
+                TextLabel.Font = Enum.Font.GothamBold
+                TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+                TextLabel.TextStrokeTransparency = 0
+                TextLabel.Parent = Billboard
+
+                local Highlight = Instance.new("Highlight")
+                Highlight.FillTransparency = 0.5
+                Highlight.OutlineTransparency = 0
+                Highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                Highlight.Parent = plr.Character
+                Highlight.Adornee = plr.Character
+
+                RunService.RenderStepped:Connect(function()
+                    if not _G.PlayerESP then
+                        if Billboard then Billboard:Destroy() end
+                        if Highlight then Highlight:Destroy() end
+                        return
+                    end
+                    
+                    if plr.Character and 
+                       plr.Character:FindFirstChild("Head") and 
+                       plr.Character:FindFirstChild("Humanoid") and
+                       plr.Character:FindFirstChild("HumanoidRootPart") and
+                       LocalPlayer.Character and
+                       LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                        
+                        local Humanoid = plr.Character.Humanoid
+                        local Distance = math.floor(
+                            (LocalPlayer.Character.HumanoidRootPart.Position - 
+                             plr.Character.HumanoidRootPart.Position).Magnitude
+                        )
+                        
+                        local HP = math.floor(Humanoid.Health)
+                        local MaxHP = math.floor(Humanoid.MaxHealth)
+                        
+                        TextLabel.Text = plr.Name .. "\n[HP: " .. HP .. "/" .. MaxHP .. "]\nKhoảng cách: " .. Distance .. "m"
+                        
+                        local hue = (tick() % 5) / 5
+                        local rainbowColor = Color3.fromHSV(hue, 1, 1)
+                        Highlight.FillColor = rainbowColor
+                        Highlight.OutlineColor = rainbowColor
+                    end
+                end)
+            end
+        end
+
+        if _G.PlayerESP then
+            for _, v in pairs(Players:GetPlayers()) do
+                CreateESP(v)
+            end
+            Players.PlayerAdded:Connect(CreateESP)
+        else
+            for _, v in pairs(Players:GetPlayers()) do
+                if v.Character then
+                    if v.Character:FindFirstChild("FullESP") then
+                        v.Character.FullESP:Destroy()
+                    end
+                    if v.Character:FindFirstChildOfClass("Highlight") then
+                        v.Character:FindFirstChildOfClass("Highlight"):Destroy()
+                    end
+                end
+            end
+        end
+    end,
+})
+
+
+local ESPFolder = workspace:FindFirstChild("LocAzaria_ESP") or Instance.new("Folder", workspace)
+ESPFolder.Name = "LocAzaria_ESP"
+local ESPSize = 14 
+
+local function CreateBackpackESP(Player)
+	if Player == LP then return end
+	
+	local Billboard = Instance.new("BillboardGui")
+	Billboard.Size = UDim2.new(0,200,0,40)
+	Billboard.AlwaysOnTop = true
+	Billboard.Parent = ESPFolder
+	
+	local Text = Instance.new("TextLabel", Billboard)
+	Text.Size = UDim2.new(1,0,1,0)
+	Text.BackgroundTransparency = 1
+	Text.TextColor3 = Color3.new(0,1,1)
+	Text.TextStrokeTransparency = 0
+	Text.TextScaled = true
+	
+	task.spawn(function()
+		while BackpackESPEnabled and Player.Parent do
+			local Char = Player.Character
+			if Char and Char:FindFirstChild("Head") then
+				Billboard.Adornee = Char.Head
+				local tools = {}
+				
+				local toolInHand = Char:FindFirstChildOfClass("Tool")
+				if toolInHand then 
+					table.insert(tools, "[" .. toolInHand.Name .. "]") 
+				end
+				
+				for _,t in pairs(Player.Backpack:GetChildren()) do
+					table.insert(tools, t.Name)
+				end
+				
+				if #tools > 0 then
+					Text.Text = table.concat(tools,", ")
+				else
+					Text.Text = "Trống"
+				end
+				Text.TextSize = ESPSize
+			end
+			task.wait(1)
+		end
+		Billboard:Destroy()
+	end)
+end
+
+TabEsp:AddSection({
+	Name = "Xem Packback Người Chơi"
+})
+
+TabEsp:AddToggle({
+	Name = "🎒ESP Backpack",
+	Default = false,
+	Callback = function(v)
+		BackpackESPEnabled = v
+		if v then
+			for _,p in pairs(game.Players:GetPlayers()) do
+				CreateBackpackESP(p)
+			end
+		end
+	end
+})
+
+
+local SelectedPlayer = nil
+local PlayerList = {}
+
+for _, v in pairs(game.Players:GetPlayers()) do
+    table.insert(PlayerList, v.Name)
+end
+
+local InfoBox = TabCheck:AddParagraph("Thông tin người chơi", "Vui lòng chọn người chơi và bấm nút Check")
+
+TabCheck:AddSection({
+	Name = "Chọn Player Cần Xem"
+})
+
+local PlayerDropdown = TabCheck:AddDropdown({
+    Name = "Chọn người chơi",
+    Default = "",
+    Options = PlayerList,
+    Callback = function(Value)
+        SelectedPlayer = game.Players:FindFirstChild(Value)
+    end    
+})
+
+TabCheck:AddSection({
+	Name = "Làm Mới Danh Sách Player"
+})
+
+TabCheck:AddButton({
+    Name = "Làm mới danh sách",
+    Callback = function()
+        local NewList = {}
+        for _, v in pairs(game.Players:GetPlayers()) do
+            table.insert(NewList, v.Name)
+        end
+        PlayerDropdown:Refresh(NewList, true)
+        OrionLib:MakeNotification({
+            Name = "Hệ thống",
+            Content = "Đã cập nhật danh sách người chơi mới!",
+            Time = 3
+        })
+    end    
+})
+
+TabCheck:AddSection({
+	Name = "Check Level Người Khác"
+})
+
+TabCheck:AddButton({
+    Name = "Check Level",
+    Callback = function()
+        if SelectedPlayer then
+            local Level = "Không xác định"
+            if SelectedPlayer:FindFirstChild("Data") and SelectedPlayer.Data:FindFirstChild("Levels") then
+                Level = SelectedPlayer.Data.Levels.Value
+            end
+            
+            local resultText = "⭐ Level hiện tại: " .. tostring(Level)
+            InfoBox:Set("Kết quả cho: " .. SelectedPlayer.Name, resultText)
+            
+            OrionLib:MakeNotification({
+                Name = "Thông tin Level",
+                Content = SelectedPlayer.Name .. " đang ở Level: " .. tostring(Level),
+                Time = 5
+            })
+        else
+            OrionLib:MakeNotification({Name = "Lỗi", Content = "Vui lòng chọn người chơi!", Time = 3})
+        end
+    end    
+})
+
+TabCheck:AddSection({
+	Name = "Check Beli Người Khác"
+})
+
+TabCheck:AddButton({
+    Name = "Check Beli",
+    Callback = function()
+        if SelectedPlayer then
+            local Beli = "Không xác định"
+            if SelectedPlayer:FindFirstChild("Data") and SelectedPlayer.Data:FindFirstChild("Belis") then
+                Beli = SelectedPlayer.Data.Belis.Value
+            end
+            
+            local resultText = "💰 Số tiền hiện có: " .. tostring(Beli)
+            InfoBox:Set("Kết quả cho: " .. SelectedPlayer.Name, resultText)
+            
+            OrionLib:MakeNotification({
+                Name = "Thông tin Beli",
+                Content = SelectedPlayer.Name .. " hiện có: " .. tostring(Beli) .. " Beli",
+                Time = 5
+            })
+        else
+            OrionLib:MakeNotification({Name = "Lỗi", Content = "Vui lòng chọn người chơi!", Time = 3})
+        end
+    end    
+})
+
+TabCheck:AddSection({
+	Name = "Xem Người Khác Đang Cầm Gì"
+})
+
+TabCheck:AddButton({
+    Name = "Check Item đang cầm",
+    Callback = function()
+        if SelectedPlayer then
+            local ToolName = "Không cầm gì"
+            local Tool = SelectedPlayer.Character:FindFirstChildOfClass("Tool")
+            if Tool then
+                ToolName = Tool.Name
+            end
+            
+            local resultText = "⚔️ Vật phẩm đang cầm: " .. ToolName
+            InfoBox:Set("Kết quả cho: " .. SelectedPlayer.Name, resultText)
+            
+            OrionLib:MakeNotification({
+                Name = "Thông tin Item",
+                Content = SelectedPlayer.Name .. " đang cầm: " .. ToolName,
+                Time = 5
+            })
+        else
+            OrionLib:MakeNotification({Name = "Lỗi", Content = "Vui lòng chọn người chơi!", Time = 3})
+        end
+    end    
+})
+
+
+local RangeVisual = Instance.new("Part")
+RangeVisual.Name = "KillAuraVisual"
+RangeVisual.Shape = Enum.PartType.Cylinder
+RangeVisual.Material = Enum.Material.ForceField
+RangeVisual.CanCollide = false
+RangeVisual.Anchored = true
+RangeVisual.Transparency = 1
+RangeVisual.Size = Vector3.new(0.5, 0, 0)
+RangeVisual.Parent = workspace
+
+getgenv().KillAuraRange = 50
+getgenv().ShowRange = false
+getgenv().RainbowRange = false
+getgenv().RangeColor = Color3.fromRGB(0, 255, 100)
+getgenv().VisualTransparency = 0.5
+getgenv().PulseEffect = false
+
+TabAura:AddSection({
+	Name = "Điều Chỉnh Phạm Vi Kill Aura"
+})
+
+TabAura:AddSlider({
+	Name = "Phạm vi Kill Aura",
+	Min = 0,
+	Max = 500,
+	Default = 50,
+	Color = Color3.fromRGB(255, 255, 255),
+	Increment = 1,
+	ValueName = "Studs",
+	Callback = function(Value)
+		getgenv().KillAuraRange = Value
+	end    
+})
+
+TabAura:AddSection({
+	Name = "Điều Chỉnh Độ Rõ Màu Của Vòng Kill Aura"
+})
+
+TabAura:AddSlider({
+	Name = "Độ Rõ KillAurra",
+	Min = 0,
+	Max = 100,
+	Default = 50,
+	Color = Color3.fromRGB(200, 200, 200),
+	Increment = 1,
+	ValueName = "%",
+	Callback = function(Value)
+		getgenv().VisualTransparency = Value / 100
+	end    
+})
+
+TabAura:AddSection({
+	Name = "Bấm Vào Để Hiển Thị Phạm Vi Kill Aura"
+})
+
+TabAura:AddToggle({
+	Name = "👁️ Hiển thị Kill Aura",
+	Default = false,
+	Callback = function(Value)
+		getgenv().ShowRange = Value
+	end
+})
+
+TabAura:AddSection({
+	Name = "Điều Chỉnh Màu"
+})
+
+TabAura:AddColorpicker({
+	Name = "Màu Phạm Vi",
+	Default = Color3.fromRGB(0, 255, 100),
+	Callback = function(Value)
+		getgenv().RangeColor = Value
+	end	  
+})
+
+TabAura:AddSection({
+	Name = "Thích Thì Bật"
+})
+
+TabAura:AddToggle({
+	Name = "🌈 Chế độ Cầu vồng",
+	Default = false,
+	Callback = function(Value)
+		getgenv().RainbowRange = Value
+	end
+})
+
+TabAura:AddSection({
+	Name = "Để Làm Cảnh"
+})
+
+TabAura:AddToggle({
+	Name = "💓 Hiệu ứng Skibidi",
+	Default = false,
+	Callback = function(Value)
+		getgenv().PulseEffect = Value
+	end
+})
+
+task.spawn(function()
+    while true do
+        task.wait()
+        local lp = game.Players.LocalPlayer
+        if getgenv().ShowRange and lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
+            local sizeOffset = 0
+            if getgenv().PulseEffect then
+                sizeOffset = math.sin(tick() * 5) * 2
+            end
+            
+            local currentSize = (getgenv().KillAuraRange * 2) + sizeOffset
+            RangeVisual.CFrame = lp.Character.HumanoidRootPart.CFrame * CFrame.Angles(0, 0, math.rad(90))
+            RangeVisual.Size = Vector3.new(0.1, currentSize, currentSize)
+            
+            if getgenv().RainbowRange then
+                RangeVisual.Color = Color3.fromHSV(tick() % 5 / 5, 1, 1)
+            else
+                RangeVisual.Color = getgenv().RangeColor
+            end
+            RangeVisual.Transparency = getgenv().VisualTransparency
+        else
+            RangeVisual.Transparency = 1
+        end
+    end
+end)
+
+TabAura:AddSection({
+	Name = "Bấm Vào Để Kill Aura"
+})
+
+TabAura:AddToggle({
+	Name = "🗡️ Kill Aura",
+	Default = false,
+	Callback = function(Value)
+		getgenv().UltraKillAura = Value
+		if Value then
+			task.spawn(function()
+				while getgenv().UltraKillAura do
+					pcall(function()
+						local lp = game.Players.LocalPlayer
+						lp.SimulationRadius = math.huge
+						lp.MaxSimulationRadius = math.huge
+					end)
+					task.wait(1)
+				end
+			end)
+			task.spawn(function()
+				while getgenv().UltraKillAura do
+					pcall(function()
+						local lp = game.Players.LocalPlayer
+						local mobs = workspace:FindFirstChild("NPC DAMAGE")
+						if mobs and lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
+							for _, mob in ipairs(mobs:GetChildren()) do
+								if not getgenv().UltraKillAura then break end
+								local enemy = mob:FindFirstChild("Enemy") or mob:FindFirstChildOfClass("Humanoid")
+								local mobHrp = mob:FindFirstChild("HumanoidRootPart")
+								if enemy and enemy.Health > 0 and mobHrp then
+									local distance = (lp.Character.HumanoidRootPart.Position - mobHrp.Position).Magnitude
+									if distance <= getgenv().KillAuraRange then
+										enemy.Health = 0
+									end
+								end
+							end
+						end
+					end)
+					task.wait(0.1)
+				end
+			end)
+		end
+	end    
+})
+
+local AutoQuest = false
+local SelectedQuest = nil
+local CurrentPlaceId = game.PlaceId
+
+local Sea1_Order = {"Boss", "SnowBoss", "Sand", "Thunder God", "Killer", "Blue fire", "BigMan", "FlameUser", "MinhMeoMeo", "Raid", "God"}
+local Sea1_Quests = {
+    ["Boss"] = function() workspace.NPCS.Quest1.ClickPart.QuestTake.QuestTake.Accept2.RemoteEvent:FireServer() end,
+    ["SnowBoss"] = function() workspace.NPCS.Quest2.ClickPart.QuestTake.QuestTake.Accept2.RemoteEvent:FireServer() end,
+    ["Sand"] = function() workspace.NPCS.Quest3.ClickPart.QuestTake.QuestTake.Accept1.RemoteEvent:FireServer() end,
+    ["Thunder God"] = function() workspace.NPCS.Quest4.ClickPart.QuestTake.QuestTake.Accept2.RemoteEvent:FireServer() end,
+    ["Killer"] = function() workspace.NPCS.Quest6.ClickPart.QuestTake.QuestTake.Accept1.RemoteEvent:FireServer() end,
+    ["Blue fire"] = function() workspace.NPCS.Quest5.ClickPart.QuestTake.QuestTake.Accept1.RemoteEvent:FireServer() end,
+    ["BigMan"] = function() workspace.NPCS.Quest5.ClickPart.QuestTake.QuestTake.Accept2.RemoteEvent:FireServer() end,
+    ["FlameUser"] = function() workspace.NPCS.Quest7.ClickPart.QuestTake.QuestTake.Accept1.RemoteEvent:FireServer() end,
+    ["MinhMeoMeo"] = function() workspace.NPCS.Quest8.ClickPart.QuestTake.QuestTake.Accept1.RemoteEvent:FireServer() end,
+    ["Raid"] = function() workspace.NPCS.Quest9.ClickPart.QuestTake.QuestTake.Accept1.RemoteEvent:FireServer() end,
+    ["God"] = function() workspace.NPCS.Quest9.ClickPart.QuestTake.QuestTake.Accept2.RemoteEvent:FireServer() end
+}
+
+local Sea2_Order = {"Kaidou", "PawUser", "King Vampire", "Magma Admiral", "String Admiral", "NickBeo", "Tango", "Garou", "Sukuna", "Grab", "Cid", "Getou", "Pride", "Kirin", "Okaka"}
+local Sea2_Quests = {
+    ["Kaidou"] = function() workspace.NPCS["KAIDOUU QUESTTT"].ClickPart.QuestTake.QuestTake.Accept1.RemoteEvent:FireServer() end,
+    ["PawUser"] = function() workspace.NPCS.Quest1.ClickPart.QuestTake.QuestTake.Accept1.RemoteEvent:FireServer() end,
+    ["King Vampire"] = function() workspace.NPCS.Quest1.ClickPart.QuestTake.QuestTake.Accept2.RemoteEvent:FireServer() end,
+    ["Magma Admiral"] = function() workspace.NPCS.Quest2.ClickPart.QuestTake.QuestTake.Accept1.RemoteEvent:FireServer() end,
+    ["String Admiral"] = function() workspace.NPCS.Quest2.ClickPart.QuestTake.QuestTake.Accept2.RemoteEvent:FireServer() end,
+    ["NickBeo"] = function() workspace.NPCS.Quest3.ClickPart.QuestTake.QuestTake.Accept1.RemoteEvent:FireServer() end,
+    ["Tango"] = function() workspace.NPCS.Quest4.ClickPart.QuestTake.QuestTake.Accept1.RemoteEvent:FireServer() end,
+    ["Garou"] = function() workspace.NPCS.Quest5.ClickPart.QuestTake.QuestTake.Accept2.RemoteEvent:FireServer() end,
+    ["Sukuna"] = function() workspace.NPCS.Quest6.ClickPart.QuestTake.QuestTake.Accept2.RemoteEvent:FireServer() end,
+    ["Grab"] = function() workspace.NPCS.Quest7.ClickPart.QuestTake.QuestTake.Accept2.RemoteEvent:FireServer() end,
+    ["Cid"] = function() workspace.NPCS.Quest8.ClickPart.QuestTake.QuestTake.Accept2.RemoteEvent:FireServer() end,
+    ["Getou"] = function() workspace.NPCS.Quest8.ClickPart.QuestTake.QuestTake.Accept3.RemoteEvent:FireServer() end,
+    ["Pride"] = function() workspace.NPCS.Quest9.ClickPart.QuestTake.QuestTake.Accept3.RemoteEvent:FireServer() end,
+    ["Kirin"] = function() workspace.NPCS.QuestSpecial.ClickPart.QuestTake.QuestTake.Accept3.RemoteEvent:FireServer() end,
+    ["Okaka"] = function() workspace.NPCS.Quest10.ClickPart.QuestTake.QuestTake.Accept3.RemoteEvent:FireServer() end
+}
+
+local CurrentQuestTable = {}
+local DropdownOptions = {}
+
+if CurrentPlaceId == 4587545091 then
+    CurrentQuestTable = Sea1_Quests
+    DropdownOptions = Sea1_Order
+elseif CurrentPlaceId == 7258239416 then
+    CurrentQuestTable = Sea2_Quests
+    DropdownOptions = Sea2_Order
+end
+
+TabFarm:AddSection({
+	Name = "Chọn Boss Cần Auto Quest"
+})
+
+TabFarm:AddDropdown({
+	Name = "📜Chọn Quest",
+	Default = "",
+	Options = DropdownOptions,
+	Callback = function(Value)
+		SelectedQuest = Value
+	end    
+})
+
+TabFarm:AddSection({
+	Name = "Bật Lên Để Auto Quest"
+})
+
+TabFarm:AddToggle({
+	Name = "Auto Quest Boss",
+	Default = false,
+	Callback = function(Value)
+		AutoQuest = Value
+		if Value then
+			task.spawn(function()
+				while AutoQuest do
+					pcall(function()
+						if SelectedQuest and CurrentQuestTable[SelectedQuest] then
+							CurrentQuestTable[SelectedQuest]()
+						end
+					end)
+					task.wait(1)
+				end
+			end)
+		end
+	end    
+})
+
+
+getgenv().AutoTeleBoss = false
+getgenv().SelectedBoss = nil
+getgenv().TeleHeight = 10
+
+local CurrentPlaceId = game.PlaceId
+local Sea1_Bosses = {"Boss", "SnowBoss", "Sand", "Enel", "Killer", "RedH", "Blue", "Big", "Ace", "mmm", "Raid", "God"}
+local Sea2_Bosses = {"Kaidou", "Paw User", "King Vampire", "Magma Admiral", "String Admiral", "NickBeo", "Cr7", "Tango", "Garou", "Sukuna", "Grab", "Pride", "KiRin", "Okaka", "Siu_Owner"}
+
+local BossList = {}
+if CurrentPlaceId == 4587545091 then
+    BossList = Sea1_Bosses
+elseif CurrentPlaceId == 7258239416 then
+    BossList = Sea2_Bosses
+else
+    BossList = {"Không tìm thấy Sea"}
+end
+
+TabFarm:AddSection({
+	Name = "Kéo thanh để chỉnh độ cao"
+})
+
+TabFarm:AddSlider({
+	Name = "Độ cao Teleport",
+	Min = 0,
+	Max = 100,
+	Default = 10,
+	Color = Color3.fromRGB(255,255,255),
+	Increment = 1,
+	ValueName = "Studs",
+	Callback = function(Value)
+		getgenv().TeleHeight = Value
+	end    
+})
+
+TabFarm:AddSection({
+	Name = "Chọn boss để tele tới"
+})
+
+TabFarm:AddDropdown({
+	Name = "Chọn Boss",
+	Default = BossList[1],
+	Options = BossList,
+	Callback = function(Value)
+		getgenv().SelectedBoss = Value
+	end    
+})
+
+TabFarm:AddSection({
+	Name = "bật để tele boss"
+})
+
+TabFarm:AddToggle({
+	Name = "Auto Teleport Boss",
+	Default = false,
+	Callback = function(Value)
+		getgenv().AutoTeleBoss = Value
+		local lp = game.Players.LocalPlayer
+		if Value then
+			task.spawn(function()
+				while getgenv().AutoTeleBoss do
+					pcall(function()
+						if getgenv().SelectedBoss and lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
+							local bossFolder = workspace:FindFirstChild("NPC DAMAGE")
+							local targetBoss = bossFolder and bossFolder:FindFirstChild(getgenv().SelectedBoss)
+							if targetBoss and targetBoss:FindFirstChild("HumanoidRootPart") then
+								local hrp = lp.Character.HumanoidRootPart
+								hrp.Velocity = Vector3.new(0, 0, 0)
+								local targetPos = targetBoss.HumanoidRootPart.CFrame * CFrame.new(0, getgenv().TeleHeight, 0)
+								hrp.CFrame = targetPos * CFrame.Angles(math.rad(-90), 0, 0)
+							end
+						end
+					end)
+					task.wait() 
+				end
+			end)
+		end
+	end    
+})
+
+
+local Sea1_ID = 4587545091
+local Sea2_ID = 7258239416
+local SelectedNPC = nil
+getgenv().SelectedIsland = nil
+local TeleMode = "Teleport" 
+
+local NPC_List = {}
+local NPC_Data = {}
+
+local CurrentIslandData = {}
+local IslandNames = {}
+
+if game.PlaceId == Sea1_ID then
+    NPC_List = {"Combat", "Chidori v2", "Dragon combat v2", "Bisento v2", "Shop armor", "Rengoku", "Watercombat", "Dragoncombat", "Pickleball", "Bisento", "Chidori", "Hamon", "Godspeed", "Sniper", "Kikoku"}
+    NPC_Data = {
+        ["Combat"] = CFrame.new(531.29303, 41.7731094, -554.75708),
+        ["Chidori v2"] = CFrame.new(514.084534, 42.9579239, -622.390564),
+        ["Dragon combat v2"] = CFrame.new(538.484924, 44.7916412, -616.830811),
+        ["Bisento v2"] = CFrame.new(535.1875, 45.7974663, -624.441711),
+        ["Shop armor"] = CFrame.new(680.138916, 66.3782349, -495.285645),
+        ["Rengoku"] = CFrame.new(744.745422, 45.4110603, -540.768311),
+        ["Watercombat"] = CFrame.new(429.65506, 53.9201393, -659.841309),
+        ["Dragoncombat"] = CFrame.new(-964.393005, 171.694321, 368.843994),
+        ["Pickleball"] = CFrame.new(-983.796631, 171.659729, 363.306885),
+        ["Bisento"] = CFrame.new(-693.108093, 70.717598, 1746.96997),
+        ["Chidori"] = CFrame.new(-2440.86743, 60.0906029, 1983.14709),
+        ["Hamon"] = CFrame.new(-2458.18188, 66.508049, 2183.18164),
+        ["Godspeed"] = CFrame.new(2516.71118, 40.359726, 144.224289),
+        ["Sniper"] = CFrame.new(-3623.9292, 66.589447, 3568.86279),
+        ["Kikoku"] = CFrame.new(506.656342, 57.318367, -674.042358)
+    }
+    CurrentIslandData = {
+        {Name = "Đảo bắt đầu", CF = CFrame.new(464.729218, 54.8596191, -585.295105)},
+        {Name = "Đảo băng", CF = CFrame.new(-915.918945, 33.7605095, 282.443604)},
+        {Name = "Đảo sa mạc", CF = CFrame.new(-708.765259, 69.1108398, 1745.13916)},
+        {Name = "Đảo sky", CF = CFrame.new(-4594.52393, 4279.44092, 474.423523)},
+        {Name = "Đảo End", CF = CFrame.new(-2223.74976, 36.3414612, 1965.88525)},
+        {Name = "Đảo Minh mama", CF = CFrame.new(2569.8501, 51.1074524, -65.3412933)},
+        {Name = "Đảo Dark", CF = CFrame.new(-3465.68188, 66.2542191, 3718.19531)}
+    }
+elseif game.PlaceId == Sea2_ID then
+    NPC_List = {"Air Cannon", "Metal bat", "Deku", "Summoner", "Tengen", "Saitama", "Garou", "Gojo", "Rayleigh", "Gon", "Sukuna", "Vegeta", "Garp", "Escanor", "Okarun", "Aiku", "Ace", "Naoya", "Rimuru", "Yuji"}
+    NPC_Data = {
+        ["Air Cannon"] = CFrame.new(-626.900635, 87704.3281, 935.128174),
+        ["Metal bat"] = CFrame.new(-504.722717, 87718.8516, 823.786987),
+        ["Deku"] = CFrame.new(-1438.76465, 87694.7344, 3252.95874),
+        ["Summoner"] = CFrame.new(-171.500946, 87740.6953, -2073.33618),
+        ["Tengen"] = CFrame.new(-1599.14807, 87723.6562, 773.580261),
+        ["Saitama"] = CFrame.new(-1648.12537, 87787.7344, 848.121948),
+        ["Garou"] = CFrame.new(1548.76428, 87694.2891, 988.732849),
+        ["Gojo"] = CFrame.new(1553.80652, 87695.5547, 1124.65466),
+        ["Rayleigh"] = CFrame.new(1605.03918, 87688.0391, 2926.62134),
+        ["Gon"] = CFrame.new(1949.4126, 87688.5938, 3043.21851),
+        ["Sukuna"] = CFrame.new(1923.95691, 87688.5391, 3052.29834),
+        ["Vegeta"] = CFrame.new(2051.96265, 87699.0312, 215.027954),
+        ["Garp"] = CFrame.new(2129.12573, 87734.6172, -47.3508072),
+        ["Escanor"] = CFrame.new(1605.6615, 87712.3438, -2340.51318),
+        ["Okarun"] = CFrame.new(-6606.18604, 87705.3984, -3431.14844),
+        ["Aiku"] = CFrame.new(-7974.30664, 87975.9297, -3870.85938),
+        ["Ace"] = CFrame.new(-7850.04492, 87975.0703, -3950.89771),
+        ["Naoya"] = CFrame.new(-7904.76611, 87975.4922, -3826.84985),
+        ["Rimuru"] = CFrame.new(-7846.33984, 87974.9688, -3848.70898),
+        ["Yuji"] = CFrame.new(-7935.24072, 87975.5781, -3955.73755)
+    }
+    CurrentIslandData = {
+        {Name = "Đảo Kaido", CF = CFrame.new(-684.14502, 87685.5781, 789.73584)},
+        {Name = "Đảo Platinum", CF = CFrame.new(-1258.6687, 87692.4062, 3259.96802)},
+        {Name = "Đảo Marine", CF = CFrame.new(-152.977585, 87739.8125, -2122.23975)},
+        {Name = "Đảo Nickbeo", CF = CFrame.new(-1601.22681, 87697.5312, 637.266418)},
+        {Name = "Đảo Garou", CF = CFrame.new(1541.55737, 87695.0469, 954.635437)},
+        {Name = "Đảo Sukuna", CF = CFrame.new(1471.48584, 87687.3672, 2764.55981)},
+        {Name = "Đảo Gab", CF = CFrame.new(2025.81213, 87695.3828, -46.9879875)},
+        {Name = "Đảo Cid or geto", CF = CFrame.new(1482.51721, 87706.4375, -1144.99609)},
+        {Name = "Đảo Sun", CF = CFrame.new(1693.61707, 87715.1016, -2305.56885)},
+        {Name = "Đảo Godly", CF = CFrame.new(-6454.58984, 87702.2344, -3202.77075)}
+    }
+end
+
+for _, info in ipairs(CurrentIslandData) do table.insert(IslandNames, info.Name) end
+
+local function SecureMove(targetCF)
+    local lp = game.Players.LocalPlayer
+    if not lp.Character or not lp.Character:FindFirstChild("HumanoidRootPart") then return end
+    local hrp = lp.Character.HumanoidRootPart
+    
+    if TeleMode == "Teleport" then
+        hrp.Velocity = Vector3.new(0, 0, 0)
+        hrp.CFrame = targetCF + Vector3.new(0, 5, 0)
+    elseif TeleMode == "Tween" then
+        local noclipConn
+        noclipConn = game:GetService("RunService").Stepped:Connect(function()
+            if lp.Character then
+                for _, v in pairs(lp.Character:GetDescendants()) do
+                    if v:IsA("BasePart") then v.CanCollide = false end
+                end
+            end
+        end)
+        
+        local distance = (hrp.Position - targetCF.Position).Magnitude
+        local speed = 150 
+        local tweenInfo = TweenInfo.new(distance / speed, Enum.EasingStyle.Linear)
+        local tween = game:GetService("TweenService"):Create(hrp, tweenInfo, {CFrame = targetCF + Vector3.new(0, 5, 0)})
+        
+        tween.Completed:Connect(function()
+            if noclipConn then noclipConn:Disconnect() end
+            for _, v in pairs(lp.Character:GetDescendants()) do
+                if v:IsA("BasePart") then v.CanCollide = true end
+            end
+        end)
+        tween:Play()
+    end
+end
+
+TabTele:AddSection({
+	Name = "Chọn Kiểu Tele"
+})
+
+TabTele:AddDropdown({
+	Name = "Select Move",
+	Default = "Teleport",
+	Options = {"Teleport", "Tween"},
+	Callback = function(Value)
+		TeleMode = Value
+	end    
+})
+
+TabTele:AddSection({
+	Name = "Chọn Shop Cần Mua"
+})
+
+TabTele:AddDropdown({
+	Name = "Select Shop",
+	Default = "",
+	Options = NPC_List,
+	Callback = function(Value)
+		SelectedNPC = Value
+	end    
+})
+
+TabTele:AddSection({
+	Name = "Tele tới Shop"
+})
+
+TabTele:AddButton({
+	Name = "Teleport Shop",
+	Callback = function()
+		if SelectedNPC and NPC_Data[SelectedNPC] then
+			SecureMove(NPC_Data[SelectedNPC])
+		end
+	end    
+})
+
+TabTele:AddSection({
+	Name = "Chọn Đảo Cần Tele"
+})
+
+TabTele:AddDropdown({
+   Name = "Select Island",
+   Default = "",
+   Options = IslandNames,
+   Callback = function(Value)
+      getgenv().SelectedIsland = Value
+   end,
+})
+
+TabTele:AddSection({
+	Name = "Tele Tới Đảo"
+})
+
+TabTele:AddButton({
+   Name = "Teleport Island",
+   Callback = function()
+      if getgenv().SelectedIsland then
+          local targetCF = nil
+          for _, v in ipairs(CurrentIslandData) do
+              if v.Name == getgenv().SelectedIsland then
+                  targetCF = v.CF
+                  break
+              end
+          end
+          if targetCF then
+              SecureMove(targetCF)
+          end
+      end
+   end,
+})
+
+TabItem:AddSection({
+	Name = "Auto Nhặt All Item Boss"
+})
+
+getgenv().AutoBossLoot = false
+
+TabItem:AddToggle({
+	Name = "Collection Item Boss",
+	Default = false,
+	Callback = function(v)
+		getgenv().AutoBossLoot = v
+	end
+})
+
+task.spawn(function()
+	while true do
+		if getgenv().AutoBossLoot then
+			pcall(function()
+				for _, obj in ipairs(workspace:GetChildren()) do
+					local cd = obj:FindFirstChildOfClass("ClickDetector")
+					
+					if cd then
+						local name = obj.Name:lower()
+						if not name:find("npc") and not name:find("quest") and not name:find("mission") and not name:find("hunter") then
+							fireclickdetector(cd)
+						end
+					end
+				end
+			end)
+		end
+		task.wait(1)
+	end
+end)
+
+
+TabItem:AddSection({
+	Name = "Bật Để Auto Cất Vật Phẩm Vào Store"
+})
+
+getgenv().AutoStoreItems = false
+
+TabMain:AddToggle({
+    Name = "Auto Store",
+    Default = false,
+    Callback = function(Value)
+        getgenv().AutoStoreItems = Value
+        if Value then
+            task.spawn(function()
+                while getgenv().AutoStoreItems do
+                    pcall(function()
+                        local lp = game.Players.LocalPlayer
+                        local itemsToStore = {}
+
+                        for _, v in pairs(lp.Backpack:GetChildren()) do
+                            if v:IsA("Tool") and (v.Name:find("Box") or v.Name:find("Book") or v.Name:find("Fruit")) then
+                                table.insert(itemsToStore, v)
+                            end
+                        end
+
+                        for _, item in pairs(itemsToStore) do
+                            if not getgenv().AutoStoreItems then break end
+                            
+                            if item.Parent == lp.Backpack then
+                                lp.Character.Humanoid:EquipTool(item)
+                                task.wait(0.3)
+                            end
+
+                            if lp.Character:FindFirstChild(item.Name) then
+                                for i = 1, 15 do
+                                    game:GetService("ReplicatedStorage").Save.SavingEvent:FireServer(i)
+                                    task.wait(0.1)
+                                    if not lp.Character:FindFirstChild(item.Name) then break end
+                                end
+                            end
+                        end
+                    end)
+                    task.wait(1)
+                end
+            end)
+        end
+    end
+})
+
+
+local SelectedSkills = {Z = false, X = false, C = false, V = false, N = false}
+local SkillOrder = {"Z", "X", "C", "V", "N"}
+local AutoSkillEnabled = false
+local SmartMode = false
+local SkillDelay = 0.1
+
+TabSkill:AddSection({
+	Name = "Chọn Skill Cần Auto"
+})
+
+for _, key in ipairs(SkillOrder) do
+    TabSkill:AddToggle({
+        Name = "Auto Skill " .. key,
+        Default = false,
+        Callback = function(v) SelectedSkills[key] = v end
+    })
+end
+
+TabSkill:AddSection({
+	Name = "Chỉnh Tốc Độ Spam"
+})
+
+TabSkill:AddSlider({
+	Name = "Spam Speed",
+	Min = 0.05,
+	Max = 1,
+	Default = 0.1,
+	Color = Color3.fromRGB(255,255,255),
+	Increment = 0.05,
+	ValueName = "s",
+	Callback = function(Value)
+		SkillDelay = Value
+	end    
+})
+
+TabSkill:AddSection({
+	Name = "Bật Để Auto Skill"
+})
+
+TabSkill:AddToggle({
+    Name = "Activate Auto Skill",
+    Default = false,
+    Callback = function(v) AutoSkillEnabled = v end
+})
+
+TabSkill:AddSection({
+	Name = "Chỉ Auto Skill Khi có Player Đứng Gần"
+})
+
+TabSkill:AddToggle({
+    Name = "Smart Mode",
+    Default = false,
+    Callback = function(v) SmartMode = v end
+})
+
+task.spawn(function()
+    while true do
+        if AutoSkillEnabled then
+            local lp = game.Players.LocalPlayer
+            local char = lp.Character
+            local root = char and char:FindFirstChild("HumanoidRootPart")
+            
+            if root then
+                local tool = char:FindFirstChildOfClass("Tool")
+                if tool then
+                    for _, key in ipairs(SkillOrder) do
+                        if SelectedSkills[key] and tool:FindFirstChild(key) then
+                            
+                            local canFire = true
+                            if SmartMode then
+                                canFire = false
+                                for _, v in ipairs(workspace:GetChildren()) do
+                                    if v:FindFirstChild("Humanoid") and v ~= char then
+                                        local mRoot = v:FindFirstChild("HumanoidRootPart")
+                                        if mRoot and (root.Position - mRoot.Position).Magnitude < 60 then
+                                            canFire = true
+                                            break
+                                        end
+                                    end
+                                end
+                            end
+
+                            if canFire then
+                                pcall(function()
+                                    for _, remote in ipairs(tool[key]:GetChildren()) do
+                                        if remote:IsA("RemoteEvent") then
+                                            remote:FireServer()
+                                        end
+                                    end
+                                end)
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        task.wait(SkillDelay)
+    end
+end)
+
+
+local AutoMelee = false
+local AutoHealth = false
+local AutoSword = false
+local AutoFruit = false
+
+TabSkill:AddSection({
+	Name = "Auto Nâng Điểm Stat"
+})
+
+TabSkill:AddToggle({
+	Name = "Melee",
+	Default = false,
+	Callback = function(v)
+		AutoMelee = v
+	end
+})
+
+TabSkill:AddToggle({
+	Name = "Health",
+	Default = false,
+	Callback = function(v)
+		AutoHealth = v
+	end
+})
+
+TabSkill:AddToggle({
+	Name = "Sword",
+	Default = false,
+	Callback = function(v)
+		AutoSword = v
+	end
+})
+
+TabSkill:AddToggle({
+	Name = "Fruit",
+	Default = false,
+	Callback = function(v)
+		AutoFruit = v
+	end
+})
+
+task.spawn(function()
+	while task.wait(0.3) do
+		if AutoMelee then
+			game:GetService("ReplicatedStorage").StatSystem.Points:FireServer("Melee")
+		end
+		if AutoHealth then
+			game:GetService("ReplicatedStorage").StatSystem.Points:FireServer("MaxHealth")
+		end
+		if AutoSword then
+			game:GetService("ReplicatedStorage").StatSystem.Points:FireServer("Sword")
+		end
+		if AutoFruit then
+			game:GetService("ReplicatedStorage").StatSystem.Points:FireServer("DevilFruit")
+		end
+	end
+end)
+
+
+local SelectedPlayer = nil
+local AutoTelePlayer = false
+local AutoBringPlayer = false
+local SpectateEnabled = false
+local PlayerList = {"None"}
+local Camera = workspace.CurrentCamera
+
+local function GetPlayerList()
+    PlayerList = {"None"}
+    for _, p in ipairs(game.Players:GetPlayers()) do
+        if p ~= game.Players.LocalPlayer then
+            table.insert(PlayerList, p.Name)
+        end
+    end
+    return PlayerList
+end
+
+TabPlay:AddSection({
+	Name = "Chọn Player Cần Tele"
+})
+
+local PlayerDropdown = TabPlay:AddDropdown({
+    Name = "Select Player",
+    Default = "None",
+    Options = GetPlayerList(),
+    Callback = function(Value)
+        SelectedPlayer = Value
+    end    
+})
+
+TabPlay:AddSection({
+	Name = "Làm Mới Danh Sách Player"
+})
+
+TabPlay:AddButton({
+    Name = "Refresh Player",
+    Callback = function()
+        PlayerDropdown:Refresh(GetPlayerList(), true)
+    end    
+})
+
+TabPlay:AddSection({
+	Name = "Xem Player "
+})
+
+TabPlay:AddToggle({
+    Name = "View Player",
+    Default = false,
+    Callback = function(v)
+        SpectateEnabled = v
+        local lp = game.Players.LocalPlayer
+        if not SpectateEnabled then
+            pcall(function()
+                Camera.CameraSubject = lp.Character.Humanoid
+            end)
+        end
+    end
+})
+
+TabPlay:AddSection({
+	Name = "Dịch Chuyển Tới Player"
+})
+
+TabPlay:AddToggle({
+    Name = "Teleport Player",
+    Default = false,
+    Callback = function(v)
+        AutoTelePlayer = v
+    end
+})
+
+TabPlay:AddSection({
+	Name = "Kéo Player Lại Gần"
+})
+
+TabPlay:AddToggle({
+    Name = "Bring Player",
+    Default = false,
+    Callback = function(v)
+        AutoBringPlayer = v
+    end
+})
+
+task.spawn(function()
+    while true do
+        local lp = game.Players.LocalPlayer
+        local myChar = lp.Character
+        local myRoot = myChar and myChar:FindFirstChild("HumanoidRootPart")
+        
+        if SelectedPlayer and SelectedPlayer ~= "None" then
+            local target = game.Players:FindFirstChild(SelectedPlayer)
+            if target and target.Character then
+                local tRoot = target.Character:FindFirstChild("HumanoidRootPart")
+                local tHum = target.Character:FindFirstChild("Humanoid")
+                
+                if SpectateEnabled and tHum then
+                    pcall(function()
+                        Camera.CameraSubject = tHum
+                    end)
+                end
+
+                if tRoot and myRoot then
+                    if AutoTelePlayer then
+                        pcall(function()
+                            myRoot.CFrame = tRoot.CFrame * CFrame.new(0, 0, 3)
+                        end)
+                    end
+                    
+                    if AutoBringPlayer then
+                        pcall(function()
+                            tRoot.Velocity = Vector3.new(0, 0, 0)
+                            tRoot.CFrame = myRoot.CFrame * CFrame.new(0, 0, -5)
+                        end)
+                    end
+                end
+            end
+        end
+        task.wait(0.1)
+    end
+end)
+
+
+local CurrentValue = 16
+local UseSpeed = false
+local UseJump = false
+local UseGravity = false
+
+TabWalk:AddSection({
+	Name = "Chỉnh Độ Nhảy,Chạy,Trọng Lực"
+})
+
+TabWalk:AddSlider({
+	Name = "Chỉnh Jump,Gravity,Speed",
+	Min = 0,
+	Max = 500,
+	Default = 16,
+	Color = Color3.fromRGB(255, 255, 255),
+	Increment = 1,
+	ValueName = "Đơn vị",
+	Callback = function(Value)
+		CurrentValue = Value
+	end    
+})
+
+TabPlay:AddSection({
+	Name = "Bật Speed nhanh"
+})
+
+TabWalk:AddToggle({
+	Name = "Speed",
+	Default = false,
+	Callback = function(v)
+		UseSpeed = v
+		local lp = game.Players.LocalPlayer
+		if not v and lp.Character and lp.Character:FindFirstChild("Humanoid") then
+			lp.Character.Humanoid.WalkSpeed = 16 -- Trả về mặc định
+		end
+	end
+})
+
+TabPlay:AddSection({
+	Name = "Bật Nhảy Cao"
+})
+
+TabWalk:AddToggle({
+	Name = "Jump",
+	Default = false,
+	Callback = function(v)
+		UseJump = v
+		local lp = game.Players.LocalPlayer
+		if not v and lp.Character and lp.Character:FindFirstChild("Humanoid") then
+			lp.Character.Humanoid.JumpPower = 50 -- Trả về mặc định
+		end
+	end
+})
+
+TabPlay:AddSection({
+	Name = "Bật Trọng Lực"
+})
+
+TabWalk:AddToggle({
+	Name = "Gravity",
+	Default = false,
+	Callback = function(v)
+		UseGravity = v
+		if not v then
+			workspace.Gravity = 196.2 -- Trả về mặc định
+		end
+	end
+})
+
+task.spawn(function()
+	while true do
+		pcall(function()
+			local lp = game.Players.LocalPlayer
+			local char = lp.Character
+			local hum = char and char:FindFirstChild("Humanoid")
+			
+			if char and hum then
+				if UseSpeed then
+					hum.WalkSpeed = CurrentValue
+				end
+				
+				if UseJump then
+					hum.UseJumpPower = true
+					hum.JumpPower = CurrentValue
+				end
+				
+				if UseGravity then
+					workspace.Gravity = CurrentValue
+				end
+			end
+		end)
+		task.wait(0.1)
+	end
+end)
+
+
+TabServer:AddSection({
+	Name = "Đổi Sever Khác"
+})
+
+TabServer:AddButton({
+	Name = "Server Hop",
+	Callback = function()
+		local Http = game:GetService("HttpService")
+		local TPS = game:GetService("TeleportService")
+		local Api = "https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Desc&limit=100"
+		
+		local function ListServers(cursor)
+			local Raw = game:HttpGet(Api .. ((cursor and "&cursor=" .. cursor) or ""))
+			return Http:JSONDecode(Raw)
+		end
+		
+		local Server = ListServers()
+		if Server and Server.data then
+			TPS:TeleportToPlaceInstance(game.PlaceId, Server.data[math.random(1, #Server.data)].id, game.Players.LocalPlayer)
+		end
+	end    
+})
+
+TabServer:AddSection({
+	Name = "Vô Lại Server"
+})
+
+TabServer:AddButton({
+	Name = "Rejoin Server",
+	Callback = function()
+		game:GetService("TeleportService"):Teleport(game.PlaceId, game.Players.LocalPlayer)
+	end    
+})
+
+TabServer:AddSection({
+	Name = "Tele Qua Sea 2"
+})
+
+TabServer:AddButton({
+	Name = "Tele Sea 2",
+	Callback = function()
+        game:GetService("ReplicatedStorage").TeleportRemote:InvokeServer()
+		print("Đang kích hoạt Remote sang Sea 2...")
+	end    
+})
+
+
+local AutoRandom = false
+local RollAmount = 1
+local KeepCommon = false
+local KeepRare = false
+local KeepLegendary = true
+local KeepMythical = true
+local KeepSecret = true
+
+TabFruit:AddButton({
+    Name = "Inf Beli",
+    Callback = function()
+        local args = {{false, {Legendary=true, Common=true, Rare=true, Mythical=true, Secret=false}, -100000000}}
+        game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui"):WaitForChild("Random"):WaitForChild("Bright"):FireServer(unpack(args))
+    end    
+})
+
+TabFruit:AddSection({Name = "Chọn Để Giữ Lại Fruit Lưu Ý chỉ nên giữ Secret nếu Không Không nhắc sớm"})
+
+TabFruit:AddToggle({Name = "Giữ Common", Default = false, Callback = function(v) KeepCommon = v end})
+TabFruit:AddToggle({Name = "Giữ Rare", Default = false, Callback = function(v) KeepRare = v end})
+TabFruit:AddToggle({Name = "Giữ Legendary", Default = true, Callback = function(v) KeepLegendary = v end})
+TabFruit:AddToggle({Name = "Giữ Mythical", Default = true, Callback = function(v) KeepMythical = v end})
+TabFruit:AddToggle({Name = "Giữ Secret", Default = true, Callback = function(v) KeepSecret = v end})
+
+TabFruit:AddSection({Name = "Số Lượng Random"})
+
+TabFruit:AddSlider({
+    Name = "number fruits",
+    Min = 1, Max = 100, Default = 1,
+    Increment = 1, ValueName = "Trái",
+    Callback = function(v) RollAmount = v end    
+})
+
+TabFruit:AddToggle({
+    Name = "Auto Random Fruit",
+    Default = false,
+    Callback = function(v) AutoRandom = v end
+})
+
+task.spawn(function()
+    while true do
+        if AutoRandom then
+            pcall(function()
+                local args = {
+                    {
+                        false,
+                        {
+                            Common = not KeepCommon,
+                            Rare = not KeepRare,
+                            Legendary = not KeepLegendary,
+                            Mythical = not KeepMythical,
+                            Secret = not KeepSecret
+                        },
+                        80000
+                    }
+                }
+                
+                for i = 1, RollAmount do
+                    if not AutoRandom then break end
+                    game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui"):WaitForChild("Random"):WaitForChild("Bright"):FireServer(unpack(args))
+                    task.wait(0.1)
+                end
+            end)
+        end
+        task.wait(1)
+    end
+end)
+
+
+OrionLib:Init()
