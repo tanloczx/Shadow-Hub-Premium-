@@ -7,10 +7,24 @@ local myKey = getgenv().Key or "loctan"
 
 local function GetHWID() return game:GetService("RbxAnalyticsService"):GetClientId() end
 
+local function SafeHttpGet(url)
+    local status, response = pcall(function()
+        return HttpService:RequestAsync({
+            Url = url,
+            Method = "GET",
+            Headers = {["Cache-Control"] = "no-cache"}
+        })
+    end)
+    if status and response.Success then
+        return response.Body
+    end
+    return "null"
+end
+
 local function CheckKey(inputKey)
     local url = BASE_URL .. "Keys/" .. inputKey .. ".json?t=" .. os.time()
-    local success, result = pcall(function() return game:HttpGet(url) end)
-    if success and result ~= "null" and result ~= "" then
+    local result = SafeHttpGet(url)
+    if result ~= "null" and result ~= "" then
         local data = HttpService:JSONDecode(result)
         local currentHWID = GetHWID()
         
@@ -30,7 +44,7 @@ local function CheckKey(inputKey)
                 }
                 updateTable.hwids[currentHWID] = true
                 
-                game:GetService("HttpService"):RequestAsync({
+                HttpService:RequestAsync({
                     Url = patchUrl,
                     Method = "POST",
                     Headers = {["Content-Type"] = "application/json"},
@@ -78,9 +92,9 @@ local lastNoticeTime = scriptStartTime
 local lastCtrlTime = scriptStartTime
 
 task.spawn(function()
-    while task.wait(2) do 
+    while task.wait(3) do 
         pcall(function()
-            local res = game:HttpGet(BASE_URL .. "Kick.json?t=" .. os.time())
+            local res = SafeHttpGet(BASE_URL .. "Kick.json?t=" .. os.time())
             if res ~= "null" then
                 local data = HttpService:JSONDecode(res)
                 if data.key == myKey and data.time > lastKickTime then
@@ -91,7 +105,7 @@ task.spawn(function()
         end)
 
         pcall(function()
-            local res = game:HttpGet(BASE_URL .. "Notice.json?t=" .. os.time())
+            local res = SafeHttpGet(BASE_URL .. "Notice.json?t=" .. os.time())
             if res ~= "null" then
                 local data = HttpService:JSONDecode(res)
                 if (data.key == myKey or data.key == "all") and data.time > lastNoticeTime then
@@ -102,7 +116,7 @@ task.spawn(function()
         end)
 
         pcall(function()
-            local res = game:HttpGet(BASE_URL .. "Control.json?t=" .. os.time())
+            local res = SafeHttpGet(BASE_URL .. "Control.json?t=" .. os.time())
             if res ~= "null" then
                 local data = HttpService:JSONDecode(res)
                 if data.key == myKey and data.time > lastCtrlTime then
